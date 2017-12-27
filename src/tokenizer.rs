@@ -1,5 +1,5 @@
 #[derive(Debug, Clone, PartialEq)]
-enum Token {
+pub enum Token {
     Root,        // $
     Dot,         // .
     DoubleDot,   // ..
@@ -12,7 +12,7 @@ enum State {
     NameStarted(String)
 }
 
-fn tokenize(expression: &str) -> Vec<Token> {
+pub fn tokenize(expression: &str) -> Vec<Token> {
     let mut tokens = vec![];
     let mut state = State::Empty;
 
@@ -73,7 +73,6 @@ fn tokenize(expression: &str) -> Vec<Token> {
         }
     }
 
-
     // Flush
     match state {
         State::Empty => (),
@@ -85,13 +84,14 @@ fn tokenize(expression: &str) -> Vec<Token> {
 }
 
 
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use self::Token::*;
 
     #[test]
-    fn tokenize_root() {
+    fn test_tokenize() {
         let hey = Name("hey".to_owned());
         let hop = Name("hop".to_owned());
 
@@ -102,6 +102,6 @@ mod tests {
         assert_eq!(tokenize("$..$"), vec![Root, DoubleDot, Root]);
         assert_eq!(tokenize("$.hey.hop"), vec![Root, Dot, hey.clone(), Dot, hop.clone()]);
         assert_eq!(tokenize("hey.hop"), vec![hey.clone(), Dot, hop.clone()]);
-        assert_eq!(tokenize("hey..hop"), vec![hey.clone(), DoubleDot, hop.clone()]);
+        assert_eq!(tokenize("hey..hop"), vec![hey, DoubleDot, hop]);
     }
 }
