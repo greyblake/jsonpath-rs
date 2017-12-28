@@ -7,6 +7,8 @@ mod tokenizer;
 mod parser;
 mod selector;
 
+pub use selector::Selector;
+
 #[cfg(test)]
 mod tests {
     use super::*;

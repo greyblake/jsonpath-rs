@@ -4,7 +4,7 @@ use serde_json::value::Value;
 
 use parser::{Filter, parse};
 
-struct Selector {
+pub struct Selector {
     filters: Vec<Filter>
 }
 
