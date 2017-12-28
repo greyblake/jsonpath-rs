@@ -7,3 +7,4 @@ authors = ["Sergey Potapov <blake131313@gmail.com>"]
 serde = "*"
 serde_json = "*"
 error-chain = "0.11"
+lazy_static = "1.0"
