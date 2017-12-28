@@ -45,6 +45,10 @@ fn main() {
 }
 ```
 
+## License
+
+[MIT](https://github.com/greyblake/jsonpath-rs/blob/master/LICENSE) © [Sergey Potapov](http://greyblake.com)
+
 ## Contributors
 
-- [greyblake](https://github.com/greyblake) Potapov Sergey - creator, maintainer.
+- [greyblake](https://github.com/greyblake) Sergey Potapov - creator, maintainer.
