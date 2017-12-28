@@ -1,4 +1,6 @@
-use tokenizer::{tokenize, Token};
+mod tokenizer;
+
+use self::tokenizer::{tokenize, Token};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Filter {
@@ -7,13 +9,10 @@ pub enum Filter {
     Descendant(String)
 }
 
-
 pub fn parse(expression: &str) -> Vec<Filter> {
     let tokens = tokenize(expression);
     build_filters(tokens)
 }
-
-
 
 enum State {
     Empty,
