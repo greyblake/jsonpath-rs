@@ -5,6 +5,7 @@ use parser::parse;
 use structs::Filter;
 
 use actions::find_first;
+use actions::find_all;
 
 pub struct Selector {
     filters: Vec<Filter>
@@ -17,7 +18,13 @@ impl Selector {
         Ok(selector)
     }
 
-    pub fn find<'a>(&self, root: &'a Value) -> Option<&'a Value> {
+    pub fn find_first<'a>(&self, root: &'a Value) -> Option<&'a Value> {
         find_first(root, &self.filters)
+    }
+
+    pub fn find_all<'a>(&self, root: &'a Value) -> Vec<&'a Value> {
+        let mut findings = vec![];
+        find_all(root, &self.filters, &mut findings);
+        findings
     }
 }
