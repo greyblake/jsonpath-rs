@@ -1,6 +1,18 @@
 use serde_json::value::Value;
 use structs::Filter;
 
+macro_rules! return_some {
+    ( $opt:expr ) => {
+        match $opt {
+            Some(_) => return $opt,
+            None => {
+                let none: Option<&'a Value> = None;
+                none
+            }
+        }
+    }
+}
+
 pub fn find_first<'a, 'b>(root: &'a Value, filters: &'b [Filter]) -> Option<&'a Value> {
     match filters.split_first() {
         Some((filter, rest_filters)) => {
@@ -33,26 +45,15 @@ pub fn find_in_descendant<'a, 'b>(root: &'a Value, descendant_name: &str, filter
         &Value::Object(ref obj) => {
             for (key, val) in obj {
                 if key == descendant_name {
-                    match find_first(val, rest_filters) {
-                        Some(v) => return Some(v),
-                        None => ()
-                    }
+                    return_some!(find_first(val, rest_filters));
                 } else {
                     match val {
                         &Value::Object(_) => {
-                            match find_first(val, filters) {
-                                Some(v) => return Some(v),
-                                None => ()
-                            }
+                            return_some!(find_first(val, filters));
                         },
                         &Value::Array(ref arr) => {
-                            for item in arr {
-                                match find_first(item, filters) {
-                                    Some(v) => return Some(v),
-                                    None => ()
-                                }
-                            }
-                        }
+                            return_some!(find_in_array(arr, filters));
+                        },
                         _ => ()
                     }
                 }
@@ -60,17 +61,20 @@ pub fn find_in_descendant<'a, 'b>(root: &'a Value, descendant_name: &str, filter
             None
         },
         &Value::Array(ref arr) => {
-            for item in arr {
-                match find_first(item, filters) {
-                    Some(v) => return Some(v),
-                    None => ()
-                }
-            }
-            None
-        }
+            return_some!(find_in_array(arr, filters))
+        },
         _ => None
     }
 }
+
+fn find_in_array<'a, 'f>(arr: &'a [Value], filters: &'f [Filter]) -> Option<&'a Value> {
+    for item in arr {
+        return_some!(find_first(item, filters));
+    }
+    None
+}
+
+
 
 #[cfg(test)]
 mod tests {
