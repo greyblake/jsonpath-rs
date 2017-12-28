@@ -45,6 +45,18 @@ fn main() {
 }
 ```
 
+## Roadmap
+
+Add support for the following operators:
+* `*` - wildcard
+* `@` - current element
+* `[start:end]` - array slice operator
+* `[?(<expression>)]` - Filter expression. Expression must evaluate to a boolean value. (this probably will require implementation of some functions)
+
+Add the following methods to `Selector`:
+* `reaplce_all`
+* `delete_all`
+
 ## License
 
 [MIT](https://github.com/greyblake/jsonpath-rs/blob/master/LICENSE) © [Sergey Potapov](http://greyblake.com)
