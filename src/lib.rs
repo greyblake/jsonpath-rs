@@ -9,5 +9,6 @@ use serde_json::Value;
 mod errors;
 mod parser;
 mod selector;
+mod structs;
 
 pub use selector::Selector;

@@ -1,14 +1,8 @@
 mod tokenizer;
 
-use self::tokenizer::{tokenize, Token};
+use self::tokenizer::tokenize;
 use errors::*;
-
-#[derive(Debug, Clone, PartialEq)]
-pub enum Filter {
-    Root,
-    Child(String),
-    Descendant(String)
-}
+use structs::{Token, Filter};
 
 pub fn parse(expression: &str) -> Result<Vec<Filter>> {
     let tokens = tokenize(expression);
@@ -35,7 +29,7 @@ fn build_filters(tokens: Vec<Token>) -> Result<Vec<Filter>> {
                         if is_new {
                             filters.push(Filter::Root);
                         } else {
-                            panic!("Token $ but be the first and can be used only once");
+                            return Err(Error::from_kind(ErrorKind::UnexpectedToken(Token::Root)));
                         }
                     },
                     Token::Dot => {
@@ -52,13 +46,13 @@ fn build_filters(tokens: Vec<Token>) -> Result<Vec<Filter>> {
             State::Dot => {
                 match token {
                     Token::Root => {
-                        panic!("Token $ can be only first");
+                        return Err(Error::from_kind(ErrorKind::UnexpectedToken(Token::Root)));
                     },
                     Token::Dot => {
-                        panic!("'.' token can not follow '.' token");
+                        return Err(Error::from_kind(ErrorKind::UnexpectedToken(Token::Dot)));
                     },
                     Token::DoubleDot => {
-                        panic!("'..' token can not follow '.' token");
+                        return Err(Error::from_kind(ErrorKind::UnexpectedToken(Token::DoubleDot)));
                     },
                     Token::Name(name) => {
                         filters.push(Filter::Child(name));
@@ -69,13 +63,13 @@ fn build_filters(tokens: Vec<Token>) -> Result<Vec<Filter>> {
             State::DoubleDot => {
                 match token {
                     Token::Root => {
-                        panic!("Token $ can be only first");
+                        return Err(Error::from_kind(ErrorKind::UnexpectedToken(Token::Root)));
                     },
                     Token::Dot => {
-                        panic!("'..' token can not follow '.' token");
+                        return Err(Error::from_kind(ErrorKind::UnexpectedToken(Token::Dot)));
                     },
                     Token::DoubleDot => {
-                        panic!("'..' token can not follow '..' token");
+                        return Err(Error::from_kind(ErrorKind::UnexpectedToken(Token::DoubleDot)));
                     },
                     Token::Name(name) => {
                         filters.push(Filter::Descendant(name));
@@ -86,7 +80,6 @@ fn build_filters(tokens: Vec<Token>) -> Result<Vec<Filter>> {
         }
         is_new = false;
     }
-
     Ok(filters)
 }
 

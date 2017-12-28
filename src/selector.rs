@@ -3,7 +3,8 @@ use serde_json::Number;
 use serde_json::value::Value;
 
 use errors::*;
-use parser::{Filter, parse};
+use parser::parse;
+use structs::Filter;
 
 pub struct Selector {
     filters: Vec<Filter>

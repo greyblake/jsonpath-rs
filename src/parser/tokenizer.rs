@@ -1,12 +1,6 @@
 use std::mem;
 
-#[derive(Debug, Clone, PartialEq)]
-pub enum Token {
-    Root,        // $
-    Dot,         // .
-    DoubleDot,   // ..
-    Name(String) // name
-}
+use structs::Token;
 
 enum State {
     Empty,

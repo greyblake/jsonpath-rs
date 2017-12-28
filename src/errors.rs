@@ -1,5 +1,10 @@
+use structs::Token;
+
 error_chain! {
     errors {
-        UnexpectedToken { description("unexpected token") }
+        UnexpectedToken(token: Token) {
+            description("unexpected token")
+            display("unexpected token: '{}'", token)
+        }
     }
 }
