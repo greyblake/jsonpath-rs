@@ -6,3 +6,4 @@ authors = ["Sergey Potapov <blake131313@gmail.com>"]
 [dependencies]
 serde = "*"
 serde_json = "*"
+error-chain = "0.11"

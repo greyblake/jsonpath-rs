@@ -1,6 +1,7 @@
 mod tokenizer;
 
 use self::tokenizer::{tokenize, Token};
+use errors::*;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Filter {
@@ -9,7 +10,7 @@ pub enum Filter {
     Descendant(String)
 }
 
-pub fn parse(expression: &str) -> Vec<Filter> {
+pub fn parse(expression: &str) -> Result<Vec<Filter>> {
     let tokens = tokenize(expression);
     build_filters(tokens)
 }
@@ -20,7 +21,7 @@ enum State {
     DoubleDot
 }
 
-fn build_filters(tokens: Vec<Token>) -> Vec<Filter> {
+fn build_filters(tokens: Vec<Token>) -> Result<Vec<Filter>> {
     let mut filters = vec![];
     let mut state = State::Empty;
 
@@ -85,7 +86,8 @@ fn build_filters(tokens: Vec<Token>) -> Vec<Filter> {
         }
         is_new = false;
     }
-    filters
+
+    Ok(filters)
 }
 
 
@@ -100,7 +102,7 @@ mod tests {
             Token::Dot,
             Token::Name("age".to_owned())
         ];
-        let filters = build_filters(tokens);
+        let filters = build_filters(tokens).unwrap();
         assert_eq!(filters, vec![Filter::Root, Filter::Child("age".to_owned())]);
 
         let tokens = vec![
@@ -108,7 +110,7 @@ mod tests {
             Token::DoubleDot,
             Token::Name("nickname".to_owned()),
         ];
-        let filters = build_filters(tokens);
+        let filters = build_filters(tokens).unwrap();
         assert_eq!(filters, vec![Filter::Root, Filter::Descendant("nickname".to_owned())]);
     }
 }

@@ -2,6 +2,7 @@ use serde_json;
 use serde_json::Number;
 use serde_json::value::Value;
 
+use errors::*;
 use parser::{Filter, parse};
 
 pub struct Selector {
@@ -9,9 +10,10 @@ pub struct Selector {
 }
 
 impl Selector {
-    pub fn new(expression: &str) -> Self {
-        let filters = parse(expression);
-        Self { filters }
+    pub fn new(expression: &str) -> Result<Self> {
+        let filters = parse(expression)?;
+        let selector = Self { filters };
+        Ok(selector)
     }
 
     pub fn find<'a>(&self, root: &'a Value) -> Option<&'a Value> {
@@ -97,28 +99,28 @@ mod tests {
         let value: Value = serde_json::from_str(json).unwrap();
 
         // root
-        let s1 = Selector::new("$");
+        let s1 = Selector::new("$").unwrap();
         assert_eq!(s1.find(&value), Some(&value));
 
         // child
-        let s2 = Selector::new("$.name");
+        let s2 = Selector::new("$.name").unwrap();
         assert_eq!(s2.find(&value), Some(&Value::String("John".to_owned())));
 
-        let s3 = Selector::new("$.user.name");
+        let s3 = Selector::new("$.user.name").unwrap();
         assert_eq!(s3.find(&value), Some(&Value::String("greyblake".to_owned())));
 
-        let s4 = Selector::new("$.date");
+        let s4 = Selector::new("$.date").unwrap();
         assert_eq!(s4.find(&value), None);
 
         // descendant
-        let s5 = Selector::new("$..age");
+        let s5 = Selector::new("$..age").unwrap();
         assert_eq!(s5.find(&value), Some(&Value::Number(Number::from(27))));
 
-        let s6 = Selector::new("$..location");
+        let s6 = Selector::new("$..location").unwrap();
         assert_eq!(s6.find(&value), Some(&Value::String("Berlin".to_owned())));
 
         // combo
-        let s7 = Selector::new("$..profile.location");
+        let s7 = Selector::new("$..profile.location").unwrap();
         assert_eq!(s7.find(&value), Some(&Value::String("Berlin".to_owned())));
     }
 }
