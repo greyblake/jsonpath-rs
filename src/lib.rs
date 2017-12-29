@@ -59,6 +59,10 @@ extern crate serde_json;
 #[macro_use]
 extern crate error_chain;
 
+extern crate pest;
+#[macro_use]
+extern crate pest_derive;
+
 #[cfg(test)]
 #[macro_use]
 extern crate lazy_static;

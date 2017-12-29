@@ -6,5 +6,10 @@ error_chain! {
             description("unexpected token")
             display("unexpected token: '{}'", token)
         }
+
+        Parse(msg: String) {
+            description("parse error")
+            display("{}", msg)
+        }
     }
 }

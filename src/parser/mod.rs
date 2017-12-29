@@ -1,86 +1,36 @@
-mod tokenizer;
+use pest::Parser;
 
-use self::tokenizer::tokenize;
 use errors::*;
-use structs::{Token, Filter};
+use structs::Filter;
+use std::error::Error as StdError;
+
+#[derive(Parser)]
+#[grammar = "parser/grammar.pest"]
+struct ExpressionParser;
 
 pub fn parse(expression: &str) -> Result<Vec<Filter>> {
-    let tokens = tokenize(expression);
-    build_filters(tokens)
-}
+    let pairs = ExpressionParser::parse_str(Rule::expression, expression)
+        .map_err(|e| Error::from_kind(ErrorKind::Parse(e.description().to_owned())))?;
 
-enum State {
-    Empty,
-    Dot,
-    DoubleDot
-}
-
-fn build_filters(tokens: Vec<Token>) -> Result<Vec<Filter>> {
-    let mut filters = vec![];
-    let mut state = State::Empty;
-
-    let mut is_new = true;
-
-    for token in tokens {
-        match state {
-            State::Empty => {
-                match token {
-                    Token::Root => {
-                        if is_new {
-                            filters.push(Filter::Root);
-                        } else {
-                            return Err(Error::from_kind(ErrorKind::UnexpectedToken(Token::Root)));
-                        }
-                    },
-                    Token::Dot => {
-                        state = State::Dot;
-                    },
-                    Token::DoubleDot => {
-                        state = State::DoubleDot;
-                    },
-                    Token::Name(name) => {
-                        filters.push(Filter::Child(name))
-                    }
-                }
-            },
-            State::Dot => {
-                match token {
-                    Token::Root => {
-                        return Err(Error::from_kind(ErrorKind::UnexpectedToken(Token::Root)));
-                    },
-                    Token::Dot => {
-                        return Err(Error::from_kind(ErrorKind::UnexpectedToken(Token::Dot)));
-                    },
-                    Token::DoubleDot => {
-                        return Err(Error::from_kind(ErrorKind::UnexpectedToken(Token::DoubleDot)));
-                    },
-                    Token::Name(name) => {
-                        filters.push(Filter::Child(name));
-                        state = State::Empty;
-                    }
-                }
-            },
-            State::DoubleDot => {
-                match token {
-                    Token::Root => {
-                        return Err(Error::from_kind(ErrorKind::UnexpectedToken(Token::Root)));
-                    },
-                    Token::Dot => {
-                        return Err(Error::from_kind(ErrorKind::UnexpectedToken(Token::Dot)));
-                    },
-                    Token::DoubleDot => {
-                        return Err(Error::from_kind(ErrorKind::UnexpectedToken(Token::DoubleDot)));
-                    },
-                    Token::Name(name) => {
-                        filters.push(Filter::Descendant(name));
-                        state = State::Empty;
-                    }
-                }
+    for root in pairs.take(1) {
+        let mut filters:Vec<Filter> = vec![];
+        for token in root.into_inner() {
+            match token.as_rule() {
+                Rule::dollar => filters.push(Filter::Root),
+                Rule::child => {
+                    let ident = token.into_inner().next().unwrap().as_str().to_owned();
+                    filters.push(Filter::Child(ident))
+                },
+                Rule::descendant => {
+                    let ident = token.into_inner().next().unwrap().as_str().to_owned();
+                    filters.push(Filter::Descendant(ident))
+                },
+                _ => unreachable!()
             }
         }
-        is_new = false;
+        return Ok(filters);
     }
-    Ok(filters)
+    unreachable!()
 }
 
 
@@ -89,21 +39,16 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_build_filters() {
-        let tokens = vec![
-            Token::Root,
-            Token::Dot,
-            Token::Name("age".to_owned())
-        ];
-        let filters = build_filters(tokens).unwrap();
-        assert_eq!(filters, vec![Filter::Root, Filter::Child("age".to_owned())]);
-
-        let tokens = vec![
-            Token::Root,
-            Token::DoubleDot,
-            Token::Name("nickname".to_owned()),
-        ];
-        let filters = build_filters(tokens).unwrap();
-        assert_eq!(filters, vec![Filter::Root, Filter::Descendant("nickname".to_owned())]);
+    fn test_parser() {
+        let exp = "$..book.title";
+        let filters = parse(exp).unwrap();
+        assert_eq!(
+            filters,
+            vec![
+                Filter::Root,
+                Filter::Descendant("book".to_owned()),
+                Filter::Child("title".to_owned()),
+            ]
+        );
     }
 }
