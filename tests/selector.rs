@@ -38,16 +38,6 @@ const JSONDOC: &'static str = r#"
     }
 "#;
 
-
-#[test]
-fn test_find_first() {
-    let json: Value = serde_json::from_str(JSONDOC).unwrap();
-    let selector = Selector::new("$.store.books..price").unwrap();
-
-    let price = selector.find_first(&json).unwrap();
-    assert_eq!(price, 8.95);
-}
-
 #[test]
 fn test_find_all() {
     let json: Value = serde_json::from_str(JSONDOC).unwrap();
