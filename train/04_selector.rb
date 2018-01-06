@@ -132,8 +132,21 @@ class Traversal
 
   def next
     while @current && new_cur = @current.next do
-      @stack.push(@current)
-      @current = new_cur
+      criterion = @criteria[@ci]
+
+      if criterion
+        if match?(@current.path_step, criterion)
+          puts "MATCHED"
+          @ci += 1
+          @stack.push(@current)
+          @current = new_cur
+        else
+          puts "NOT MATCHED"
+          raise "Not implemented"
+        end
+      else
+        break
+      end
     end
 
     if @current.nil?
@@ -198,13 +211,34 @@ class StackItem
   end
 end
 
+class Criterion
+  attr_reader :type, :val
+
+  def initialize(type, val)
+    @type = type
+    @val = val
+  end
+end
+
 def process(node)
   puts node
 end
 
-puts "Traversal\n"
-criteria = [:root]
-iter = Traversal.new(root, criteria)
+def match?(path_step, criterion)
+  raise "path_step must be PathStep" unless path_step.is_a?(PathStep)
+  raise "criterion must be Criterion" unless criterion.is_a?(Criterion)
+
+  case [path_step.type, criterion.type]
+  when [:root, :root] then true
+  else
+    false
+  end
+end
+
+
+puts "Traversal\n\n"
+criteria = [Criterion.new(:root, nil)]
+iter = Traversal.new(type_cat, criteria)
 while item = iter.next do
   #process(item)
 end
