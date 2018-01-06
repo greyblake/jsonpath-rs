@@ -51,7 +51,6 @@ user = NodeObj.new("user", {"name" => user_name, "age" => user_age } )
 
 root = NodeObj.new("root", {"pets" => pets, "user" => user})
 
-
 class ItemBase
   attr_reader :node
 
@@ -75,11 +74,14 @@ class ItemArr < ItemBase
   def initialize(node)
     raise "Node for ItemArr must be NodeArr" unless node.is_a?(NodeArr)
     @node = node
-    @iter = node.children.each
+    @iter = node.children.each_with_index
   end
 
   def next
-    Item.new(@iter.next)
+    node, index = @iter.next
+    item = Item.new(node)
+    path_step = PathStep.new(:index, index)
+    StackItem.new(item, path_step)
   rescue StopIteration
     nil
   end
@@ -89,11 +91,14 @@ class ItemObj < ItemBase
   def initialize(node)
     raise "Node for ItemObj must be NodeObj" unless node.is_a?(NodeObj)
     @node = node
-    @iter = node.children.values.each
+    @iter = node.children.each
   end
 
   def next
-    Item.new(@iter.next)
+    key, node = @iter.next
+    item = Item.new(node)
+    path_step = PathStep.new(:key, key)
+    StackItem.new(item, path_step)
   rescue StopIteration
     nil
   end
@@ -112,7 +117,13 @@ end
 
 class Traversal
   def initialize(root, criteria)
-    @current = Item.new(root)
+
+    # build root stack item
+    item = Item.new(root)
+    path_step = PathStep.new(:root)
+    stack_item = StackItem.new(item, path_step)
+
+    @current = stack_item
     @stack = []
     @criteria = criteria
     @ci = 0
@@ -125,9 +136,65 @@ class Traversal
       @current = new_cur
     end
 
-    result = @current
+    if @current.nil?
+      return nil
+    end
+
+    item = @current.item
+    path_step = @current.path_step
+
+
+    print "  " * @stack.size
+    process(item)
+
     @current = @stack.pop
-    result
+    item
+  end
+end
+
+class PathStep
+  TYPES = [:root, :key, :index].freeze
+  attr_reader :type, :val
+
+  def initialize(type, val = nil)
+    raise("Unknown PathStep type: #{type.inspect}") unless TYPES.include?(type)
+
+    is_ok = (type == :key && val.is_a?(String)) || (type == :index && val.is_a?(Integer)) || type == :root
+
+    unless is_ok
+      raise("PathStep type and val do not match")
+    end
+
+    @type = type
+    @val = val
+  end
+
+  def ==(other)
+    self.type == other.type && self.val == other.val
+  end
+
+  def to_s
+    "(#{type}: #{val})"
+  end
+end
+
+class StackItem
+  attr_reader :item, :path_step
+
+  def initialize(item, path_step)
+    raise("Unexpected item type") unless item.is_a?(ItemBase)
+    raise("Unexpected path_step type") unless path_step.is_a?(PathStep)
+
+    @item = item
+    @path_step = path_step
+  end
+
+  def next
+    item.next
+  end
+
+  def to_s
+    "StackItem: item = #{item}, path_step = #{path_step}"
   end
 end
 
@@ -139,7 +206,6 @@ puts "Traversal\n"
 criteria = [:root]
 iter = Traversal.new(root, criteria)
 while item = iter.next do
-  process(item)
+  #process(item)
 end
 
-puts
