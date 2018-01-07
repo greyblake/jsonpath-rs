@@ -82,7 +82,7 @@ mod tests {
     use serde_json;
 
     #[test]
-    fn test_iter() {
+    fn test_simple_json() {
         let json = r#"
             {
                 "dog": {
@@ -100,6 +100,74 @@ mod tests {
 
         let found: Vec<&Value> = Iter::new(&root, &criteria).collect();
         assert_eq!(found, vec!["Rex"]);
+    }
+
+    #[test]
+    fn test_complex_json() {
+        let json = r#"
+            {
+                "pets": [
+                    {
+                        "type":"cat",
+                        "name":"Tom"
+                    },
+                    {
+                        "type":"dog",
+                        "name":"Rex"
+                    }
+                ],
+                "user": {
+                    "name":"Sergey",
+                    "age":27
+                }
+            }
+        "#;
+
+        let root: Value = serde_json::from_str(&json).unwrap();
+
+        // $.user.age
+        let criteria = vec![
+            Criterion::Root,
+            Criterion::Child("user".to_owned()),
+            Criterion::Child("age".to_owned())
+        ];
+        let found: Vec<&Value> = Iter::new(&root, &criteria).collect();
+        assert_eq!(found, vec![27]);
+
+        // $.pets.*.type
+        let criteria = vec![
+            Criterion::Root,
+            Criterion::Child("pets".to_owned()),
+            Criterion::AnyChild,
+            Criterion::Child("type".to_owned())
+        ];
+        let found: Vec<&Value> = Iter::new(&root, &criteria).collect();
+        assert_eq!(found, vec!["cat", "dog"]);
+
+        // $.pets.*.name
+        let criteria = vec![
+            Criterion::Root,
+            Criterion::Child("pets".to_owned()),
+            Criterion::AnyChild,
+            Criterion::Child("name".to_owned())
+        ];
+        let found: Vec<&Value> = Iter::new(&root, &criteria).collect();
+        assert_eq!(found, vec!["Tom", "Rex"]);
+
+        // $.user.*
+        let criteria = vec![
+            Criterion::Root,
+            Criterion::Child("user".to_owned()),
+            Criterion::AnyChild,
+        ];
+        let found: Vec<&Value> = Iter::new(&root, &criteria).collect();
+        assert_eq!(
+            found,
+            vec![
+                &Value::from(27),
+                &Value::from("Sergey")
+            ]
+        );
     }
 }
 
