@@ -1,3 +1,6 @@
+require "pry"
+require "pp"
+
 class BaseNode
   attr_reader :id
 
@@ -131,38 +134,62 @@ class Traversal
   end
 
   def next
-    while @current && new_cur = @current.next do
+    while @current do
+      log
+      log "Current: #{@current}"
+      log "Stack size: #{@stack.size}"
       criterion = @criteria[@ci]
 
       if criterion
         if match?(@current.path_step, criterion)
-          puts "MATCHED"
-          @ci += 1
-          @stack.push(@current)
-          @current = new_cur
+          log "MATCH  #{@current.path_step} -> #{criterion}"
+
+          if @criteria[@ci + 1].nil?
+            item = @current.item
+            @ci -= 1
+            @current = @stack.pop
+            log "RETURN ITEM"
+            return item
+          else
+            @ci += 1
+            @stack.push(@current)
+            @current = @current.next
+            unless @current
+              @ci -= 1
+              @stack.pop
+              @ci -= 1
+              @current = @stack.pop
+            end
+          end
         else
-          puts "NOT MATCHED"
-          raise "Not implemented"
+          log "NO MATCH  #{@current.path_step} -> #{criterion}"
+          if @stack.last
+            if nxt = @stack.last.next
+              @current = nxt
+            else
+              @ci -= 1
+              @current = @stack.pop
+            end
+          else
+            log "RETURN NIL"
+            return nil
+          end
         end
       else
-        break
+        raise "IMPOSSIBLE"
+        item = @current.item
+        @current = @stack.pop
+        @ci -= 1
+        return item
       end
     end
 
-    if @current.nil?
-      return nil
-    end
-
-    item = @current.item
-    path_step = @current.path_step
-
-
-    print "  " * @stack.size
-    process(item)
-
-    @current = @stack.pop
-    item
+    log "@current is nil"
   end
+end
+
+def log(msg = nil)
+  # puts msg
 end
 
 class PathStep
@@ -218,6 +245,10 @@ class Criterion
     @type = type
     @val = val
   end
+
+  def to_s
+    "(#{type}, #{val})"
+  end
 end
 
 def process(node)
@@ -230,6 +261,10 @@ def match?(path_step, criterion)
 
   case [path_step.type, criterion.type]
   when [:root, :root] then true
+  when [:key, :key]
+    path_step.val == criterion.val
+  when [:key, :any_key] then true
+  when [:index, :any_index] then true
   else
     false
   end
@@ -237,9 +272,17 @@ end
 
 
 puts "Traversal\n\n"
-criteria = [Criterion.new(:root, nil)]
-iter = Traversal.new(type_cat, criteria)
+criteria = [
+  Criterion.new(:root, nil),
+  #Criterion.new(:key, "pets"),
+  Criterion.new(:any_key, nil),
+  Criterion.new(:any_index, nil),
+  Criterion.new(:key, "name"),
+]
+iter = Traversal.new(root, criteria)
 while item = iter.next do
-  #process(item)
+  print "  --->  "
+  process(item)
+  puts
 end
 
