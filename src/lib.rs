@@ -52,8 +52,6 @@
 //! }
 //!
 //! ```
-
-
 extern crate serde;
 extern crate serde_json;
 #[macro_use]
@@ -73,6 +71,5 @@ mod parser;
 mod selector;
 mod structs;
 mod parser2;
-mod stack;
 
 pub use selector::Selector;

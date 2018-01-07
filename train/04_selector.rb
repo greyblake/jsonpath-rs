@@ -163,24 +163,15 @@ class Traversal
           end
         else
           log "NO MATCH  #{@current.path_step} -> #{criterion}"
-          if @stack.last
-            if nxt = @stack.last.next
-              @current = nxt
-            else
-              @ci -= 1
-              @current = @stack.pop
-            end
+          if nxt = @stack.last.next
+            @current = nxt
           else
-            log "RETURN NIL"
-            return nil
+            @ci -= 1
+            @current = @stack.pop
           end
         end
       else
         raise "IMPOSSIBLE"
-        item = @current.item
-        @current = @stack.pop
-        @ci -= 1
-        return item
       end
     end
 
@@ -189,7 +180,7 @@ class Traversal
 end
 
 def log(msg = nil)
-  # puts msg
+  puts msg
 end
 
 class PathStep
@@ -274,10 +265,10 @@ end
 puts "Traversal\n\n"
 criteria = [
   Criterion.new(:root, nil),
-  #Criterion.new(:key, "pets"),
+  Criterion.new(:key, "user"),
   Criterion.new(:any_key, nil),
-  Criterion.new(:any_index, nil),
-  Criterion.new(:key, "name"),
+  #Criterion.new(:any_index, nil),
+  #Criterion.new(:key, "name"),
 ]
 iter = Traversal.new(root, criteria)
 while item = iter.next do
