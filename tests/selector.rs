@@ -39,11 +39,10 @@ const JSONDOC: &'static str = r#"
 "#;
 
 #[test]
-fn test_find_all() {
+fn test_find() {
     let json: Value = serde_json::from_str(JSONDOC).unwrap();
-    let selector = Selector::new("$.store.books..price").unwrap();
+    let selector = Selector::new("$.store.bicycle.price").unwrap();
 
-    let found_prices = selector.find_all(&json);
-    let prices: Vec<f64> = found_prices.iter().map(|pr| pr.as_f64().unwrap()).collect();
-    assert_eq!(prices, vec![8.95, 12.99, 8.99, 22.99]);
+    let bicycle_price = selector.find(&json).nth(0).unwrap();
+    assert_eq!(bicycle_price, 19.95);
 }

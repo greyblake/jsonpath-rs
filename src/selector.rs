@@ -2,24 +2,21 @@ use serde_json::value::Value;
 
 use errors::*;
 use parser::parse;
-use structs::Filter;
-
-use actions::find_all;
+use structs::Criterion;
+use iter::Iter;
 
 pub struct Selector {
-    filters: Vec<Filter>
+    criteria: Vec<Criterion>
 }
 
 impl Selector {
     pub fn new(expression: &str) -> Result<Self> {
-        let filters = parse(expression)?;
-        let selector = Self { filters };
+        let criteria = parse(expression)?;
+        let selector = Self { criteria };
         Ok(selector)
     }
 
-    pub fn find_all<'a>(&self, root: &'a Value) -> Vec<&'a Value> {
-        let mut findings = vec![];
-        find_all(root, &self.filters, &mut findings);
-        findings
+    pub fn find<'a, 'b>(&'b self, root: &'a Value) -> Iter<'a, 'b> {
+        Iter::new(root, &self.criteria)
     }
 }

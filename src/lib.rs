@@ -40,15 +40,15 @@
 //!     // Parse JSON document
 //!     let json: Value = serde_json::from_str(jsondoc).unwrap();
 //!
+//!     // TODO:
 //!     // Create a JSONPath selector
-//!     let selector = Selector::new("$.favorites..title").unwrap();
+//!     // let selector = Selector::new("$.favorites.books.*.title").unwrap();
 //!
 //!     // Apply the selector to the JSON and convert Vec<&Value> into Vec<&str>
-//!     let titles: Vec<&str> = selector.find_all(&json)
-//!         .iter()
-//!         .map(|t| t.as_str().unwrap())
-//!         .collect();
-//!     assert_eq!(titles, vec!["Der schwarze Obelist", "Le mur"]);
+//!     // let titles: Vec<&str> = selector.find(&json)
+//!     //    .map(|t| t.as_str().unwrap())
+//!     //    .collect();
+//!     // assert_eq!(titles, vec!["Der schwarze Obelist", "Le mur"]);
 //! }
 //!
 //! ```
@@ -65,11 +65,10 @@ extern crate pest_derive;
 #[macro_use]
 extern crate lazy_static;
 
-mod actions;
 mod errors;
 mod parser;
 mod selector;
 mod structs;
-mod parser2;
+mod iter;
 
 pub use selector::Selector;

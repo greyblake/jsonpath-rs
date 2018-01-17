@@ -1,34 +1,30 @@
 use pest::Parser;
 
 use errors::*;
-use structs::Filter;
+use structs::Criterion;
 use std::error::Error as StdError;
 
 #[derive(Parser)]
 #[grammar = "parser/grammar.pest"]
 struct ExpressionParser;
 
-pub fn parse(expression: &str) -> Result<Vec<Filter>> {
+pub fn parse(expression: &str) -> Result<Vec<Criterion>> {
     let pairs = ExpressionParser::parse_str(Rule::expression, expression)
         .map_err(|e| Error::from_kind(ErrorKind::Parse(e.description().to_owned())))?;
 
     for root in pairs.take(1) {
-        let mut filters:Vec<Filter> = vec![];
+        let mut criteria: Vec<Criterion> = vec![];
         for token in root.into_inner() {
             match token.as_rule() {
-                Rule::dollar => filters.push(Filter::Root),
+                Rule::dollar => criteria.push(Criterion::Root),
                 Rule::child => {
                     let ident = token.into_inner().next().unwrap().as_str().to_owned();
-                    filters.push(Filter::Child(ident))
-                },
-                Rule::descendant => {
-                    let ident = token.into_inner().next().unwrap().as_str().to_owned();
-                    filters.push(Filter::Descendant(ident))
+                    criteria.push(Criterion::Child(ident))
                 },
                 _ => unreachable!()
             }
         }
-        return Ok(filters);
+        return Ok(criteria);
     }
     unreachable!()
 }
@@ -40,14 +36,14 @@ mod tests {
 
     #[test]
     fn test_parser() {
-        let exp = "$..book.title";
-        let filters = parse(exp).unwrap();
+        let exp = "$.book.title";
+        let criteria = parse(exp).unwrap();
         assert_eq!(
-            filters,
+            criteria,
             vec![
-                Filter::Root,
-                Filter::Descendant("book".to_owned()),
-                Filter::Child("title".to_owned()),
+                Criterion::Root,
+                Criterion::Child("book".to_owned()),
+                Criterion::Child("title".to_owned()),
             ]
         );
     }

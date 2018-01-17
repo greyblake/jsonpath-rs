@@ -1,7 +1,7 @@
 use serde_json::Value;
 use structs::{Criterion, Step, StackItem, Item, matches};
 
-struct Iter<'a, 'b> {
+pub struct Iter<'a, 'b> {
     criteria: &'b Vec<Criterion>,
     ci: usize,
     current: Option<StackItem<'a>>,
@@ -58,7 +58,7 @@ impl<'a, 'b> Iterator for Iter<'a, 'b> {
 }
 
 impl<'a, 'b> Iter<'a, 'b> {
-    fn new(root: &'a Value, criteria: &'b Vec<Criterion>) -> Self {
+    pub fn new(root: &'a Value, criteria: &'b Vec<Criterion>) -> Self {
         let root_item = Item::new(root);
         let step = Step::Root;
         let current = Some(StackItem::new(root_item, step));
