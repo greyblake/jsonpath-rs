@@ -8,7 +8,9 @@ digit = _{ '0'..'9' }
 ident = { (alpha | digit)+ }
 
 child = { dot ~ ident }
+any_child = { dot ~ asterisk }
+
 // descendant = { double_dot ~ ident }
 
 // expression = { dollar ~ (child | descendant)+ ~ eoi }
-expression = { dollar ~ (child)+ ~ eoi }
+expression = { dollar ~ (child | any_child)+ ~ eoi }
