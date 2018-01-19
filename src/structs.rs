@@ -1,13 +1,3 @@
-#[derive(Debug, Clone, PartialEq)]
-pub enum Filter {
-    Root,
-    Child(String)
-}
-
-
-
-// --------------------------- Stack based parser
-
 // TODO:
 // - rename Child -> NamedChild
 // - add IndexedChild(usize)
