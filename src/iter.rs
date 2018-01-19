@@ -94,8 +94,8 @@ mod tests {
         let root: Value = serde_json::from_str(&json).unwrap();
         let criteria = vec![
             Criterion::Root,
-            Criterion::Child("dog".to_owned()),
-            Criterion::Child("name".to_owned())
+            Criterion::NamedChild("dog".to_owned()),
+            Criterion::NamedChild("name".to_owned())
         ];
 
         let found: Vec<&Value> = Iter::new(&root, &criteria).collect();
@@ -128,8 +128,8 @@ mod tests {
         // $.user.age
         let criteria = vec![
             Criterion::Root,
-            Criterion::Child("user".to_owned()),
-            Criterion::Child("age".to_owned())
+            Criterion::NamedChild("user".to_owned()),
+            Criterion::NamedChild("age".to_owned())
         ];
         let found: Vec<&Value> = Iter::new(&root, &criteria).collect();
         assert_eq!(found, vec![27]);
@@ -137,9 +137,9 @@ mod tests {
         // $.pets.*.type
         let criteria = vec![
             Criterion::Root,
-            Criterion::Child("pets".to_owned()),
+            Criterion::NamedChild("pets".to_owned()),
             Criterion::AnyChild,
-            Criterion::Child("type".to_owned())
+            Criterion::NamedChild("type".to_owned())
         ];
         let found: Vec<&Value> = Iter::new(&root, &criteria).collect();
         assert_eq!(found, vec!["cat", "dog"]);
@@ -147,9 +147,9 @@ mod tests {
         // $.pets.*.name
         let criteria = vec![
             Criterion::Root,
-            Criterion::Child("pets".to_owned()),
+            Criterion::NamedChild("pets".to_owned()),
             Criterion::AnyChild,
-            Criterion::Child("name".to_owned())
+            Criterion::NamedChild("name".to_owned())
         ];
         let found: Vec<&Value> = Iter::new(&root, &criteria).collect();
         assert_eq!(found, vec!["Tom", "Rex"]);
@@ -157,7 +157,7 @@ mod tests {
         // $.user.*
         let criteria = vec![
             Criterion::Root,
-            Criterion::Child("user".to_owned()),
+            Criterion::NamedChild("user".to_owned()),
             Criterion::AnyChild,
         ];
         let found: Vec<&Value> = Iter::new(&root, &criteria).collect();
@@ -188,7 +188,7 @@ mod tests {
         let root: Value = serde_json::from_str(&json).unwrap();
         let criteria = vec![
             Criterion::Root,
-            Criterion::Child("pet".to_owned()),
+            Criterion::NamedChild("pet".to_owned()),
             Criterion::AnyChild,
         ];
 

@@ -20,7 +20,7 @@ pub fn parse(expression: &str) -> Result<Vec<Criterion>> {
                 Rule::dollar => criteria.push(Criterion::Root),
                 Rule::child => {
                     let ident = token.into_inner().next().unwrap().as_str().to_owned();
-                    criteria.push(Criterion::Child(ident))
+                    criteria.push(Criterion::NamedChild(ident))
                 },
                 Rule::any_child => {
                     criteria.push(Criterion::AnyChild)
@@ -46,8 +46,8 @@ mod tests {
             criteria,
             vec![
                 Criterion::Root,
-                Criterion::Child("book".to_owned()),
-                Criterion::Child("title".to_owned()),
+                Criterion::NamedChild("book".to_owned()),
+                Criterion::NamedChild("title".to_owned()),
             ]
         );
     }
@@ -61,7 +61,7 @@ mod tests {
             vec![
                 Criterion::Root,
                 Criterion::AnyChild,
-                Criterion::Child("title".to_owned()),
+                Criterion::NamedChild("title".to_owned()),
             ]
         );
     }

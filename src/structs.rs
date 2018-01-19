@@ -1,5 +1,4 @@
 // TODO:
-// - rename Child -> NamedChild
 // - add IndexedChild(usize)
 #[derive(Debug, Clone, PartialEq)]
 pub enum Criterion {
@@ -7,7 +6,7 @@ pub enum Criterion {
     Root,
 
     // .name
-    Child(String),
+    NamedChild(String),
 
     // .*
     AnyChild
@@ -31,7 +30,7 @@ pub fn matches(step: &Step, criterion: &Criterion) -> bool {
                 _ => false
             }
         },
-        &Criterion::Child(ref child_name) => {
+        &Criterion::NamedChild(ref child_name) => {
             match step {
                 &Step::Root => false,
                 &Step::Key(ref key) => child_name == key,
