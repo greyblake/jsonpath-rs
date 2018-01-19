@@ -40,15 +40,14 @@
 //!     // Parse JSON document
 //!     let json: Value = serde_json::from_str(jsondoc).unwrap();
 //!
-//!     // TODO:
 //!     // Create a JSONPath selector
-//!     // let selector = Selector::new("$.favorites.books.*.title").unwrap();
+//!     let selector = Selector::new("$.favorites.books.*.title").unwrap();
 //!
 //!     // Apply the selector to the JSON and convert Vec<&Value> into Vec<&str>
-//!     // let titles: Vec<&str> = selector.find(&json)
-//!     //    .map(|t| t.as_str().unwrap())
-//!     //    .collect();
-//!     // assert_eq!(titles, vec!["Der schwarze Obelist", "Le mur"]);
+//!     let titles: Vec<&str> = selector.find(&json)
+//!         .map(|t| t.as_str().unwrap())
+//!         .collect();
+//!     assert_eq!(titles, vec!["Der schwarze Obelist", "Le mur"]);
 //! }
 //!
 //! ```

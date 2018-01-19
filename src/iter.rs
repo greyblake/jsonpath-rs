@@ -169,5 +169,31 @@ mod tests {
             ]
         );
     }
+
+    #[test]
+    fn test_any_child() {
+        let json = r#"
+            {
+                "pet": {
+                    "type": "dog",
+                    "name": "Rex"
+                },
+                "car": {
+                    "type": "passenger",
+                    "name": "Zorro"
+                }
+            }
+        "#;
+
+        let root: Value = serde_json::from_str(&json).unwrap();
+        let criteria = vec![
+            Criterion::Root,
+            Criterion::Child("pet".to_owned()),
+            Criterion::AnyChild,
+        ];
+
+        let found: Vec<&Value> = Iter::new(&root, &criteria).collect();
+        assert_eq!(found, vec!["Rex", "dog"]);
+    }
 }
 
