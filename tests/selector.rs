@@ -46,3 +46,12 @@ fn test_find() {
     let bicycle_price = selector.find(&json).nth(0).unwrap();
     assert_eq!(bicycle_price, 19.95);
 }
+
+#[test]
+fn test_index() {
+    let json: Value = serde_json::from_str(JSONDOC).unwrap();
+    let selector = Selector::new("$.store.books[2].title").unwrap();
+
+    let title = selector.find(&json).nth(0).unwrap();
+    assert_eq!(title, "Moby Dick");
+}
