@@ -9,7 +9,10 @@ pub enum Criterion {
     NamedChild(String),
 
     // .*
-    AnyChild
+    AnyChild,
+
+    // [123]
+    IndexedChild(usize),
 }
 
 // A step during traversing JSON tree
@@ -32,16 +35,21 @@ pub fn matches(step: &Step, criterion: &Criterion) -> bool {
         },
         &Criterion::NamedChild(ref child_name) => {
             match step {
-                &Step::Root => false,
                 &Step::Key(ref key) => child_name == key,
-                &Step::Index(_) => false
+                _ => false
             }
         },
         &Criterion::AnyChild => {
             match step {
-                &Step::Root => false,
                 &Step::Key(_) => true,
-                &Step::Index(_) => true
+                &Step::Index(_) => true,
+                _ => false
+            }
+        }
+        &Criterion::IndexedChild(index) => {
+            match step {
+                &Step::Index(idx) => index == idx,
+                _ => false
             }
         }
     }

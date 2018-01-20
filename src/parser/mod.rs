@@ -24,6 +24,10 @@ pub fn parse(expression: &str) -> Result<Vec<Criterion>> {
                 },
                 Rule::any_child => {
                     criteria.push(Criterion::AnyChild)
+                },
+                Rule::indexed_child => {
+                    let index: usize = token.into_inner().next().unwrap().as_str().parse()?;
+                    criteria.push(Criterion::IndexedChild(index));
                 }
                 _ => unreachable!()
             }
@@ -62,6 +66,20 @@ mod tests {
                 Criterion::Root,
                 Criterion::AnyChild,
                 Criterion::NamedChild("title".to_owned()),
+            ]
+        );
+    }
+
+    #[test]
+    fn test_indexed_child() {
+        let exp = "$.books[34]";
+        let criteria = parse(exp).unwrap();
+        assert_eq!(
+            criteria,
+            vec![
+                Criterion::Root,
+                Criterion::NamedChild("books".to_owned()),
+                Criterion::IndexedChild(34),
             ]
         );
     }

@@ -195,5 +195,21 @@ mod tests {
         let found: Vec<&Value> = Iter::new(&root, &criteria).collect();
         assert_eq!(found, vec!["Rex", "dog"]);
     }
+
+    #[test]
+    fn test_indexed_child() {
+        let json = r#"
+            ["Foo", "Bar", "Baz"]
+        "#;
+
+        let root: Value = serde_json::from_str(&json).unwrap();
+        let criteria = vec![
+            Criterion::Root,
+            Criterion::IndexedChild(1)
+        ];
+
+        let found: Vec<&Value> = Iter::new(&root, &criteria).collect();
+        assert_eq!(found, vec!["Bar"]);
+    }
 }
 

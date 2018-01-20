@@ -6,11 +6,13 @@ double_dot =  _{ ".." }
 alpha = _{ 'a'..'z' | 'A'..'Z' }
 digit = _{ '0'..'9' }
 ident = { (alpha | digit)+ }
+number = { digit+ }
 
 child = { dot ~ ident }
 any_child = { dot ~ asterisk }
+indexed_child = { "[" ~ number ~ "]" }
 
 // descendant = { double_dot ~ ident }
 
 // expression = { dollar ~ (child | descendant)+ ~ eoi }
-expression = { dollar ~ (child | any_child)+ ~ eoi }
+expression = { dollar ~ (child | any_child | indexed_child)+ ~ eoi }

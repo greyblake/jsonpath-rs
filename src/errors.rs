@@ -5,4 +5,8 @@ error_chain! {
             display("{}", msg)
         }
     }
+
+    foreign_links {
+        ParseIntError(::std::num::ParseIntError);
+    }
 }
