@@ -11,8 +11,9 @@ number = { digit+ }
 child = { dot ~ ident }
 any_child = { dot ~ asterisk }
 indexed_child = { "[" ~ number ~ "]" }
+slice = { "[" ~ number ~ ":" ~ number ~ "]" }
 
 // descendant = { double_dot ~ ident }
 
 // expression = { dollar ~ (child | descendant)+ ~ eoi }
-expression = { dollar ~ (child | any_child | indexed_child)+ ~ eoi }
+expression = { dollar ~ (child | any_child | indexed_child | slice)+ ~ eoi }

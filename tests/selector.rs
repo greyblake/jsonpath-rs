@@ -55,3 +55,12 @@ fn test_index() {
     let title = selector.find(&json).nth(0).unwrap();
     assert_eq!(title, "Moby Dick");
 }
+
+#[test]
+fn test_slice() {
+    let json: Value = serde_json::from_str(JSONDOC).unwrap();
+    let selector = Selector::new("$.store.books[1:2].price").unwrap();
+
+    let prices: Vec<f64> = selector.find(&json).map(|x| x.as_f64().unwrap()).collect();
+    assert_eq!(prices, vec![12.99, 8.99]);
+}

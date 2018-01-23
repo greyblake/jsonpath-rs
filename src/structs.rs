@@ -1,5 +1,3 @@
-// TODO:
-// - add IndexedChild(usize)
 #[derive(Debug, Clone, PartialEq)]
 pub enum Criterion {
     // $
@@ -13,6 +11,9 @@ pub enum Criterion {
 
     // [123]
     IndexedChild(usize),
+
+    // [10:20]
+    Slice(::std::ops::Range<usize>)
 }
 
 // A step during traversing JSON tree
@@ -49,6 +50,14 @@ pub fn matches(step: &Step, criterion: &Criterion) -> bool {
         &Criterion::IndexedChild(index) => {
             match step {
                 &Step::Index(idx) => index == idx,
+                _ => false
+            }
+        }
+        &Criterion::Slice(ref range) => {
+            match step {
+                &Step::Index(idx) => {
+                    range.start <= idx && idx <= range.end
+                }
                 _ => false
             }
         }
