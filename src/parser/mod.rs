@@ -35,6 +35,11 @@ pub fn parse(expression: &str) -> Result<Vec<Criterion>> {
                     let to: usize = iter.next().unwrap().as_str().parse()?;
                     criteria.push(Criterion::Slice(from..to));
                 }
+                Rule::slice_to => {
+                    let mut iter = token.into_inner();
+                    let to: usize = iter.next().unwrap().as_str().parse()?;
+                    criteria.push(Criterion::SliceTo(..to));
+                }
                 _ => unreachable!()
             }
         }
@@ -94,13 +99,27 @@ mod tests {
     fn test_slice() {
         let exp = "$.books[4:7]";
         let criteria = parse(exp).unwrap();
-        //assert_eq!(
-            //criteria,
-            //vec![
-                //Criterion::Root,
-                //Criterion::NamedChild("books".to_owned()),
-                //Criterion::Slice(4..7),
-            //]
-        //);
+        assert_eq!(
+            criteria,
+            vec![
+                Criterion::Root,
+                Criterion::NamedChild("books".to_owned()),
+                Criterion::Slice(4..7),
+            ]
+        );
+    }
+
+    #[test]
+    fn test_slice_to() {
+        let exp = "$.books[:4]";
+        let criteria = parse(exp).unwrap();
+        assert_eq!(
+            criteria,
+            vec![
+                Criterion::Root,
+                Criterion::NamedChild("books".to_owned()),
+                Criterion::SliceTo(..4),
+            ]
+        );
     }
 }

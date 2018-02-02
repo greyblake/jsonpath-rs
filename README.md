@@ -15,18 +15,16 @@ use serde_json::Value;
 fn main() {
     let jsondoc = r#"
         {
-            "favorites": {
-               "books": [
-                   {
-                       "title": "Der schwarze Obelist",
-                       "author": "Erich Maria Remarque"
-                   },
-                   {
-                       "title": "Le mur",
-                       "author": "Jean-Paul Sartre"
-                   }
-               ]
-            }
+             "books": [
+                 {
+                     "title": "Der schwarze Obelist",
+                     "author": "Erich Maria Remarque"
+                 },
+                 {
+                     "title": "Le mur",
+                     "author": "Jean-Paul Sartre"
+                 }
+             ]
         }
     "#;
 
@@ -34,13 +32,13 @@ fn main() {
     let json: Value = serde_json::from_str(jsondoc).unwrap();
 
     // Create a JSONPath selector
-    let selector = Selector::new("$.favorites..title").unwrap();
+    let selector = Selector::new("$.books.*.title").unwrap();
 
     // Apply the selector to the JSON and convert Vec<&Value> into Vec<&str>
-    let titles: Vec<&str> = selector.find_all(&json)
-        .iter()
+    let titles: Vec<&str> = selector.find(&json)
         .map(|t| t.as_str().unwrap())
         .collect();
+
     assert_eq!(titles, vec!["Der schwarze Obelist", "Le mur"]);
 }
 ```
@@ -53,9 +51,6 @@ Add support for the following operators:
 * `[start:end]` - array slice operator
 * `[?(<expression>)]` - Filter expression. Expression must evaluate to a boolean value. (this probably will require implementation of some functions)
 
-Add the following methods to `Selector`:
-* `reaplce_all`
-* `delete_all`
 
 ## License
 
