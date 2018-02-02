@@ -38,47 +38,49 @@ const JSONDOC: &'static str = r#"
     }
 "#;
 
+macro_rules! assert_jsonpath_f64 {
+    ($path:expr, $expected:expr) => {
+        assert_jsonpath!(JSONDOC, $path, f64, as_f64, $expected);
+    }
+}
+
+macro_rules! assert_jsonpath_str {
+    ($path:expr, $expected:expr) => {
+        assert_jsonpath!(JSONDOC, $path, &str, as_str, $expected);
+    }
+}
+
+macro_rules! assert_jsonpath {
+    ($json:expr, $path:expr, $type:ty, $convert:ident, $expected:expr) => {
+        let value: Value = serde_json::from_str($json).unwrap();
+        let selector = Selector::new($path).unwrap();
+        let selected_values: Vec<$type> = selector.find(&value).map(|x| x.$convert().unwrap()).collect();
+        assert_eq!(selected_values, $expected);
+    }
+}
+
+
 #[test]
 fn test_find() {
-    let json: Value = serde_json::from_str(JSONDOC).unwrap();
-    let selector = Selector::new("$.store.bicycle.price").unwrap();
-
-    let bicycle_price = selector.find(&json).nth(0).unwrap();
-    assert_eq!(bicycle_price, 19.95);
+    assert_jsonpath_f64!("$.store.bicycle.price", [19.95]);
 }
 
 #[test]
 fn test_index() {
-    let json: Value = serde_json::from_str(JSONDOC).unwrap();
-    let selector = Selector::new("$.store.books[2].title").unwrap();
-
-    let title = selector.find(&json).nth(0).unwrap();
-    assert_eq!(title, "Moby Dick");
+    assert_jsonpath_str!("$.store.books[2].title", ["Moby Dick"]);
 }
 
 #[test]
 fn test_slice() {
-    let json: Value = serde_json::from_str(JSONDOC).unwrap();
-    let selector = Selector::new("$.store.books[1:2].price").unwrap();
-
-    let prices: Vec<f64> = selector.find(&json).map(|x| x.as_f64().unwrap()).collect();
-    assert_eq!(prices, vec![12.99, 8.99]);
+    assert_jsonpath_f64!("$.store.books[1:2].price", [12.99, 8.99]);
 }
 
 #[test]
 fn test_slice_to() {
-    let json: Value = serde_json::from_str(JSONDOC).unwrap();
-    let selector = Selector::new("$.store.books[:3].price").unwrap();
-
-    let prices: Vec<f64> = selector.find(&json).map(|x| x.as_f64().unwrap()).collect();
-    assert_eq!(prices, vec![8.95, 12.99, 8.99]);
+    assert_jsonpath_f64!("$.store.books[:3].price", [8.95, 12.99, 8.99]);
 }
 
 #[test]
 fn test_slice_from() {
-    let json: Value = serde_json::from_str(JSONDOC).unwrap();
-    let selector = Selector::new("$.store.books[1:].price").unwrap();
-
-    let prices: Vec<f64> = selector.find(&json).map(|x| x.as_f64().unwrap()).collect();
-    assert_eq!(prices, vec![12.99, 8.99, 22.99]);
+    assert_jsonpath_f64!("$.store.books[1:].price", [12.99, 8.99, 22.99]);
 }
