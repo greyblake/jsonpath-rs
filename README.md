@@ -2,7 +2,6 @@
 
 The library is in hard development stage.
 
-
 ## Example
 
 ```rust
@@ -45,12 +44,21 @@ fn main() {
 
 ## Roadmap
 
-Add support for the following operators:
-* `*` - wildcard
-* `@` - current element
-* `[start:end]` - array slice operator
-* `[?(<expression>)]` - Filter expression. Expression must evaluate to a boolean value. (this probably will require implementation of some functions)
-
+* [ ] Operators:
+  * [x] `$` - root element
+  * [x] `.<name>` - named child element
+  * [x] `*` - wildcard (any child item)
+  * [x] `[<number>]` - indexed element in array
+  * [x] `[<start>:<end>]` - slice
+  * [x] `[:<end>]` - slice (to)
+  * [ ] `[<start>:]` - slice (from)
+* [ ] Handy test helpers
+* [ ] Good integration test coverage
+* [ ] Refactor
+* [ ] Mutable iterator
+* [ ] Support filters
+  * [ ] `[?(<expression>)]` - Filter expression. Expression must evaluate to a boolean value.
+  * [ ] `@` - current element
 
 ## License
 
