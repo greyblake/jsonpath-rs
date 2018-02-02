@@ -13,7 +13,8 @@ any_child = { dot ~ asterisk }
 indexed_child = { "[" ~ number ~ "]" }
 slice = { "[" ~ number ~ ":" ~ number ~ "]" }
 slice_to = { "[:" ~ number ~ "]" }
+slice_from = { "[" ~ number ~ ":]" }
 
 // descendant = { double_dot ~ ident }
 
-expression = { dollar ~ (child | any_child | indexed_child | slice_to | slice)+ ~ eoi }
+expression = { dollar ~ (child | any_child | indexed_child | slice_to | slice_from | slice)+ ~ eoi }

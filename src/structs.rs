@@ -16,7 +16,10 @@ pub enum Criterion {
     Slice(::std::ops::Range<usize>),
 
     // [:7]
-    SliceTo(::std::ops::RangeTo<usize>)
+    SliceTo(::std::ops::RangeTo<usize>),
+
+    // [4:]
+    SliceFrom(usize),
 }
 
 // A step during traversing JSON tree
@@ -68,6 +71,14 @@ pub fn matches(step: &Step, criterion: &Criterion) -> bool {
             match step {
                 &Step::Index(idx) => {
                     idx < range_to.end
+                }
+                _ => false
+            }
+        },
+        &Criterion::SliceFrom(from) => {
+            match step {
+                &Step::Index(idx) => {
+                    from <= idx
                 }
                 _ => false
             }

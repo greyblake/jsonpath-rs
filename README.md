@@ -51,10 +51,15 @@ fn main() {
   * [x] `[<number>]` - indexed element in array
   * [x] `[<start>:<end>]` - slice
   * [x] `[:<end>]` - slice (to)
-  * [ ] `[<start>:]` - slice (from)
+  * [x] `[<start>:]` - slice (from)
 * [ ] Handy test helpers
 * [ ] Good integration test coverage
+* [ ] Benchmarks
 * [ ] Refactor
+* [ ] Improve error messages
+* [ ] Review unwraps
+* [ ] Review the public API (rename Selector -> Path ?)
+* [ ] Publish a new version
 * [ ] Mutable iterator
 * [ ] Support filters
   * [ ] `[?(<expression>)]` - Filter expression. Expression must evaluate to a boolean value.
