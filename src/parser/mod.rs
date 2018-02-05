@@ -16,6 +16,7 @@ pub fn parse(expression: &str) -> Result<Vec<Criterion>> {
         let mut criteria: Vec<Criterion> = vec![];
         for token in root.into_inner() {
 
+
             match token.as_rule() {
                 Rule::dollar => criteria.push(Criterion::Root),
                 Rule::child => {
@@ -59,7 +60,14 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_parser() {
+    fn test_root() {
+        let exp = "$";
+        let criteria = parse(exp).unwrap();
+        assert_eq!(criteria, vec![Criterion::Root]);
+    }
+
+    #[test]
+    fn test_child() {
         let exp = "$.book.title";
         let criteria = parse(exp).unwrap();
         assert_eq!(

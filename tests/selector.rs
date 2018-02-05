@@ -84,3 +84,13 @@ fn test_slice_to() {
 fn test_slice_from() {
     assert_jsonpath_f64!("$.store.books[1:].price", [12.99, 8.99, 22.99]);
 }
+
+#[test]
+fn test_root() {
+    let json = r#"
+        {"a": 10}
+    "#;
+    let value: Value = serde_json::from_str(json).unwrap();
+    let selector = Selector::new("$").unwrap();
+    //let found_values: Vec<&Value> = selector.find(&value).collect();
+}
