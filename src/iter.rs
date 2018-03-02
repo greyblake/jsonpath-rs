@@ -18,7 +18,10 @@ impl<'a, 'b> Iterator for Iter<'a, 'b> {
                     // if there are no further criteria
                     if self.criteria.len() == self.ci + 1 {
                         let val = current.item.value;
-                        self.ci -= 1;
+                        // Hack to prevent overflow
+                        if self.ci > 0 {
+                            self.ci -= 1;
+                        }
                         self.current = self.stack.pop();
                         return Some(val);
                     } else {
@@ -212,4 +215,3 @@ mod tests {
         assert_eq!(found, vec!["Bar"]);
     }
 }
-
