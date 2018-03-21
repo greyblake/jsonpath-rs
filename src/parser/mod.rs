@@ -9,7 +9,7 @@ use std::error::Error as StdError;
 struct ExpressionParser;
 
 pub fn parse(expression: &str) -> Result<Vec<Criterion>> {
-    let pairs = ExpressionParser::parse_str(Rule::expression, expression)
+    let pairs = ExpressionParser::parse(Rule::expression, expression)
         .map_err(|e| Error::from_kind(ErrorKind::Parse(e.description().to_owned())))?;
 
     for root in pairs.take(1) {
