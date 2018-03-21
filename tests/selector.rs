@@ -92,5 +92,5 @@ fn test_root() {
     "#;
     let value: Value = serde_json::from_str(json).unwrap();
     let selector = Selector::new("$").unwrap();
-    let found_values: Vec<&Value> = selector.find(&value).collect();
+    let _found_values: Vec<&Value> = selector.find(&value).collect();
 }
