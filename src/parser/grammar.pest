@@ -1,4 +1,5 @@
 dollar = { "$" }
+arobase = { "@" }
 asterisk = _{ "*" }
 dot =  _{ "." }
 double_dot =  _{ ".." }
@@ -8,6 +9,7 @@ digit = _{ '0'..'9' }
 special_charaters = _{ "_" | "-" }
 ident = { (alpha | digit | special_charaters)+ }
 number = { digit+ }
+float = { digit+ ~ "." ~ digit+ }
 
 child = { dot ~ ident }
 any_child = { dot ~ asterisk }
@@ -16,4 +18,14 @@ slice = { "[" ~ number ~ ":" ~ number ~ "]" }
 slice_to = { "[:" ~ number ~ "]" }
 slice_from = { "[" ~ number ~ ":]" }
 
-expression = { dollar ~ (child | any_child | indexed_child | slice_to | slice_from | slice)* ~ eoi }
+equal = { "==" }
+different = { "!=" }
+greater = { ">" }
+lower = { "<" }
+condition = { equal | different | greater | lower }
+string = { (alpha | digit | special_charaters | " ")+ }
+literal = { "'" ~ string ~ "'" }
+
+filter = { "[?(" ~ (dollar | arobase) ~ (child)* ~ (" ")* ~ (condition) ~ (" ")* ~ ( float | number | literal) ~ ")]" }
+
+expression = { dollar ~ (child | any_child | indexed_child | slice | slice_to | slice_from | filter)* ~ eoi }

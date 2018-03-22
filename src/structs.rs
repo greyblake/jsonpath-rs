@@ -1,25 +1,42 @@
+use filter;
+use serde_json::Value;
+use std::slice::Iter;
+use std::iter::Enumerate;
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum Criterion {
     // $
     Root,
-
+    // @
+    Element,
     // .name
     NamedChild(String),
-
+    // ?(path)
+    Filter(Vec<Criterion>),
     // .*
     AnyChild,
-
     // [123]
     IndexedChild(usize),
-
     // [10:20]
     Slice(::std::ops::Range<usize>),
-
     // [:7]
     SliceTo(::std::ops::RangeTo<usize>),
-
     // [4:]
     SliceFrom(usize),
+    // ==
+    Equal,
+    // !=
+    Different,
+    // >
+    Greater,
+    // <
+    Lower,
+    // 'content'
+    Literal(String),
+    // 10
+    Number(i64),
+    // 9.99
+    Float(f64),
 }
 
 // A step during traversing JSON tree
@@ -32,36 +49,48 @@ pub enum Step<'a> {
 
 
 // TODO: write unit tests
-pub fn matches(step: &Step, criterion: &Criterion) -> bool {
+pub fn matches(stack: &mut StackItem, criterion: &Criterion) -> bool {
+    let step = stack.step.clone();
     match criterion {
         &Criterion::Root => {
             match step {
-                &Step::Root => true,
+                Step::Root => true,
                 _ => false
             }
         },
+        &Criterion::Element => false,
+        &Criterion::Equal => false,
+        &Criterion::Different => false,
+        &Criterion::Greater => false,
+        &Criterion::Lower => false,
+        &Criterion::Literal(ref _content) => false,
+        &Criterion::Number(ref _value) => false,
+        &Criterion::Float(ref _value) => false,
         &Criterion::NamedChild(ref child_name) => {
             match step {
-                &Step::Key(ref key) => child_name == key,
+                Step::Key(ref key) => child_name == key,
                 _ => false
             }
+        },
+        &Criterion::Filter(ref path) => {
+            filter::process_filter(stack, path)
         },
         &Criterion::AnyChild => {
             match step {
-                &Step::Key(_) => true,
-                &Step::Index(_) => true,
+                Step::Key(_) => true,
+                Step::Index(_) => true,
                 _ => false
             }
         }
         &Criterion::IndexedChild(index) => {
             match step {
-                &Step::Index(idx) => index == idx,
+                Step::Index(idx) => index == idx,
                 _ => false
             }
         }
         &Criterion::Slice(ref range) => {
             match step {
-                &Step::Index(idx) => {
+                Step::Index(idx) => {
                     range.start <= idx && idx <= range.end
                 }
                 _ => false
@@ -69,7 +98,7 @@ pub fn matches(step: &Step, criterion: &Criterion) -> bool {
         }
         &Criterion::SliceTo(ref range_to) => {
             match step {
-                &Step::Index(idx) => {
+                Step::Index(idx) => {
                     idx < range_to.end
                 }
                 _ => false
@@ -77,7 +106,7 @@ pub fn matches(step: &Step, criterion: &Criterion) -> bool {
         },
         &Criterion::SliceFrom(from) => {
             match step {
-                &Step::Index(idx) => {
+                Step::Index(idx) => {
                     from <= idx
                 }
                 _ => false
@@ -85,12 +114,6 @@ pub fn matches(step: &Step, criterion: &Criterion) -> bool {
         }
     }
 }
-
-
-use serde_json::Value;
-use std::slice::Iter;
-use std::iter::Enumerate;
-
 
 pub enum ItemIter<'a> {
     Array(Enumerate<Iter<'a, Value>>),
@@ -157,4 +180,3 @@ impl<'a> StackItem<'a> {
         self.item.next().map( |(sub_item, step)| Self::new(sub_item, step) )
     }
 }
-

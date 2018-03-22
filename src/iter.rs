@@ -14,7 +14,7 @@ impl<'a, 'b> Iterator for Iter<'a, 'b> {
     fn next(&mut self) -> Option<Self::Item> {
         while let Some(mut current) = self.current.take() {
             if let Some(criterion) = self.criteria.get(self.ci) {
-                if matches(&current.step, criterion) {
+                if matches(&mut current, criterion) {
                     // if there are no further criteria
                     if self.criteria.len() == self.ci + 1 {
                         let val = current.item.value;
@@ -74,10 +74,6 @@ impl<'a, 'b> Iter<'a, 'b> {
         }
     }
 }
-
-
-
-
 
 #[cfg(test)]
 mod tests {

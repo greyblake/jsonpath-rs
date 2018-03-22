@@ -86,6 +86,36 @@ fn test_slice_from() {
 }
 
 #[test]
+fn test_filter_for_price() {
+    assert_jsonpath_f64!("$.store.books[?(@.category == 'reference')].price", [8.95]);
+}
+
+#[test]
+fn test_filter_for_title() {
+    assert_jsonpath_str!("$.store.books[?(@.category == 'fiction')].title", ["Sword of Honour", "Moby Dick", "The Lord of the Rings"]);
+}
+
+#[test]
+fn test_filter_for_high_float_price() {
+    assert_jsonpath_str!("$.store.books[?(@.price > 9.99)].title", ["Sword of Honour", "The Lord of the Rings"]);
+}
+
+#[test]
+fn test_filter_for_ship_float_price() {
+    assert_jsonpath_str!("$.store.books[?(@.price < 9.99)].title", ["Sayings of the Century", "Moby Dick"]);
+}
+
+#[test]
+fn test_filter_for_high_price() {
+    assert_jsonpath_str!("$.store.books[?(@.price > 10)].title", ["Sword of Honour", "The Lord of the Rings"]);
+}
+
+#[test]
+fn test_filter_for_ship_price() {
+    assert_jsonpath_str!("$.store.books[?(@.price < 10)].title", ["Sayings of the Century", "Moby Dick"]);
+}
+
+#[test]
 fn test_root() {
     let json = r#"
         {"a": 10}
