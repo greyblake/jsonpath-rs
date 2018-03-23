@@ -1,46 +1,11 @@
 
 use serde_json::Value;
 use structs::{Criterion, StackItem, Step};
+use iter::Iter;
 
+mod comparison;
 
-macro_rules! numbers {
-  (integer => $next:expr, $operator:tt, $value:expr) => {{
-    match $next.item.value {
-      &Value::Number(ref source) => {
-        match source.as_f64() {
-          Some(ref float_value) => return *float_value $operator *$value as f64,
-          None => {
-            match source.as_i64() {
-              Some(ref int_value) => return int_value $operator $value,
-              None => {}
-            }
-          }
-        }
-      },
-      _ => {},
-    }
-  }};
-  (float => $next:expr, $operator:tt, $value:expr) => {{
-    match $next.item.value {
-      &Value::Number(ref source) => {
-        match source.as_f64() {
-          Some(ref float_value) => return float_value $operator ($value),
-          None => {
-            match source.as_i64() {
-              Some(ref int_value) => return (*int_value as f64) $operator *$value,
-              None => {}
-            }
-          }
-        }
-      },
-      _ => {},
-    }
-  }}
-}
-
-pub fn process_filter(stack: &mut StackItem, path: &Vec<Criterion>) -> bool {
-  let step = stack.step.clone();
-
+pub fn process_filter<'a>(stack: &mut StackItem, path: &Vec<Criterion>, root: &StackItem<'a>) -> bool {
   match path[0] {
     Criterion::Element => {
       match path[1] {
@@ -49,26 +14,9 @@ pub fn process_filter(stack: &mut StackItem, path: &Vec<Criterion>) -> bool {
             match next.step {
               Step::Key(key) => {
                 if child_name == key {
-                  match (path[2].clone(), path[3].clone()) {
-                    (Criterion::Equal, Criterion::Literal(ref content)) => {
-                      return next.item.value == content
-                    }
-                    (Criterion::Different, Criterion::Literal(ref content)) => {
-                      return next.item.value != content
-                    }
-                    (Criterion::Lower, Criterion::Number(ref value)) => {
-                      numbers!(integer => next, <, value)
-                    }
-                    (Criterion::Greater, Criterion::Number(ref value)) => {
-                      numbers!(integer => next, >, value)
-                    }
-                    (Criterion::Lower, Criterion::Float(ref value)) => {
-                      numbers!(float => next, <, value)
-                    }
-                    (Criterion::Greater, Criterion::Float(ref value)) => {
-                      numbers!(float => next, >, value)
-                    }
-                    _ => {}
+                  match comparison::filter(&path[2], &path[3], &next) {
+                    Some(value) => return value,
+                    None => {},
                   }
                 }
               },
@@ -81,7 +29,36 @@ pub fn process_filter(stack: &mut StackItem, path: &Vec<Criterion>) -> bool {
       }
     },
     Criterion::Root => {
-      step == Step::Root
+      let found =
+        path.iter().position(|ref x|
+          *x == &Criterion::Equal ||
+          *x == &Criterion::Different ||
+          *x == &Criterion::Greater ||
+          *x == &Criterion::Lower
+        );
+
+      let (sub_path, condition) =
+        match found {
+          Some(index) => {
+            let (left, right) = path.split_at(index);
+            (left.to_vec(), right.to_vec())
+          },
+          None => (path.clone(), vec![]),
+        };
+
+      let doc = root.item.value;
+      let found: Vec<&Value> = Iter::new(&doc, &sub_path).collect();
+
+      match condition.len() {
+        0 => true,
+        2 => {
+          match comparison::vec_filter(&condition[0], &condition[1], &found) {
+            Some(value) => return value,
+            None => false,
+          }
+        },
+        _ => false
+      }
     },
   _ => false,
   }

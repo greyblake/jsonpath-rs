@@ -26,6 +26,6 @@ condition = { equal | different | greater | lower }
 string = { (alpha | digit | special_charaters | " ")+ }
 literal = { "'" ~ string ~ "'" }
 
-filter = { "[?(" ~ (dollar | arobase) ~ (child)* ~ (" ")* ~ (condition) ~ (" ")* ~ ( float | number | literal) ~ ")]" }
+filter = { "[?(" ~ (dollar | arobase) ~ (child | any_child | indexed_child | slice | slice_to | slice_from | filter)* ~ (" ")* ~ (condition) ~ (" ")* ~ ( float | number | literal) ~ ")]" }
 
 expression = { dollar ~ (child | any_child | indexed_child | slice | slice_to | slice_from | filter)* ~ eoi }

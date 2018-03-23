@@ -5,6 +5,7 @@ pub struct Iter<'a, 'b> {
     criteria: &'b Vec<Criterion>,
     ci: usize,
     current: Option<StackItem<'a>>,
+    root: StackItem<'a>,
     stack: Vec<StackItem<'a>>
 }
 
@@ -14,7 +15,7 @@ impl<'a, 'b> Iterator for Iter<'a, 'b> {
     fn next(&mut self) -> Option<Self::Item> {
         while let Some(mut current) = self.current.take() {
             if let Some(criterion) = self.criteria.get(self.ci) {
-                if matches(&mut current, criterion) {
+                if matches(&mut current, criterion, &self.root) {
                     // if there are no further criteria
                     if self.criteria.len() == self.ci + 1 {
                         let val = current.item.value;
@@ -64,12 +65,14 @@ impl<'a, 'b> Iter<'a, 'b> {
     pub fn new(root: &'a Value, criteria: &'b Vec<Criterion>) -> Self {
         let root_item = Item::new(root);
         let step = Step::Root;
+        let root = StackItem::new(Item::new(root), Step::Root);
         let current = Some(StackItem::new(root_item, step));
 
         Self {
             criteria: criteria,
             stack: vec![],
             current: current,
+            root: root,
             ci: 0
         }
     }

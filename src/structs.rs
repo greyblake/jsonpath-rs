@@ -49,7 +49,7 @@ pub enum Step<'a> {
 
 
 // TODO: write unit tests
-pub fn matches(stack: &mut StackItem, criterion: &Criterion) -> bool {
+pub fn matches<'a>(stack: &mut StackItem, criterion: &Criterion, root: &StackItem<'a>) -> bool {
     let step = stack.step.clone();
     match criterion {
         &Criterion::Root => {
@@ -73,7 +73,7 @@ pub fn matches(stack: &mut StackItem, criterion: &Criterion) -> bool {
             }
         },
         &Criterion::Filter(ref path) => {
-            filter::process_filter(stack, path)
+            filter::process_filter(stack, path, &root)
         },
         &Criterion::AnyChild => {
             match step {
