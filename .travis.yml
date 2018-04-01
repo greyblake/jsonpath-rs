@@ -10,6 +10,7 @@ matrix:
   allow_failures:
     - rust: nightly
   include:
+    # Rustfmt
     - env: RUSTFMT_VERSION="0.4.1"
       rust: nightly-2018-04-01
       install:
@@ -19,6 +20,8 @@ matrix:
         - cargo-fmt fmt -- --version
       script:
         - cargo fmt -- --write-mode=diff
+
+    # Clippy
     - env: CLIPPY_VERSION="0.0.191"
       rust: nightly-2018-04-01
       install:
@@ -26,6 +29,27 @@ matrix:
       script:
         # Fail if clippy output contains "error:" or "warning:"
         - cargo clippy 2>&1 | tee ./clippy.out && ! grep -qe  "error:\|warning:" ./clippy.out
+
+    # Test coverage (with Tarpaulin)
+    - env: TARPAULIN_VERSION="0.5.6"
+      rust: stable
+      # To avoid "Error: EPERM: operation not permitted" error (see https://github.com/valery-barysok/session-file-store/issues/58)
+      sudo: true
+      install:
+        - curl -sL https://github.com/xd009642/tarpaulin/releases/download/$TARPAULIN_VERSION/cargo-tarpaulin-$TARPAULIN_VERSION-travis.tar.gz | tar xvz -C $HOME/.cargo/bin
+      script:
+        - cargo tarpaulin --verbose > ./tarpaulin.out
+
+        # Fetch coverage percentage (integer)
+        - COVERAGE=$(cat ./tarpaulin.out | awk -F '.' '/coverage/ { print $1 }')
+        - echo COVERAGE=${COVERAGE}
+
+        # Print uncoverted lines
+        - 'echo "UNCOVERED LINES" && grep "hits: 0" ./tarpaulin.out'
+
+        # Exit 1, if coverage is less than 89%
+        - if [ $COVERAGE -lt 89 ]; then exit 0; fi
+
 script:
   - cargo test
 cache:
@@ -33,3 +57,8 @@ cache:
 before_cache:
   # Travis can't cache files that are not readable by "others"
   - chmod -R a+r $HOME/.cargo
+
+addons:
+  apt:
+    packages:
+      - libssl-dev  # Required for tarpaulin
