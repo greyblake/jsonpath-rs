@@ -61,7 +61,7 @@ fn main() {
 * [ ] Review the public API (rename Selector -> Path ?)
 * [ ] Publish a new version
 * [ ] Mutable iterator
-* [ ] Support filters
+* [x] Support filters
   * [x] `[?(<expression>)]` - Filter expression. Expression must evaluate to a boolean value.
   * [x] `@` - current element
   * [x] operator `==`
