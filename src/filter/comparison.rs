@@ -3,8 +3,8 @@ use structs::{Criterion, StackItem};
 
 macro_rules! numbers {
   (integer => $next:expr, $operator:tt, $value:expr) => {{
-    match $next.item.value {
-      &Value::Number(ref source) => {
+    match *$next.item.value {
+      Value::Number(ref source) => {
         match source.as_f64() {
           Some(ref float_value) => Some(*float_value $operator *$value as f64),
           None => {
@@ -19,8 +19,8 @@ macro_rules! numbers {
     }
   }};
   (float => $next:expr, $operator:tt, $value:expr) => {{
-    match $next.item.value {
-      &Value::Number(ref source) => {
+    match *$next.item.value {
+      Value::Number(ref source) => {
         match source.as_f64() {
           Some(ref float_value) => Some(float_value $operator ($value)),
           None => {
@@ -50,30 +50,24 @@ pub fn filter(pattern: &Criterion, value: &Criterion, next: &StackItem) -> Optio
     }
 }
 
-pub fn vec_filter(pattern: &Criterion, value: &Criterion, values: &Vec<&Value>) -> Option<bool> {
+pub fn vec_filter(pattern: &Criterion, value: &Criterion, values: &[&Value]) -> Option<bool> {
     match (pattern, value) {
         (&Criterion::Equal, &Criterion::Literal(ref content)) => {
             for v in values.iter() {
-                match *v {
-                    &Value::String(ref string_content) => {
-                        if string_content != content {
-                            return Some(false);
-                        }
+                if let Value::String(ref string_content) = **v {
+                    if string_content != content {
+                        return Some(false);
                     }
-                    _ => {}
                 }
             }
             Some(true)
         }
         (&Criterion::Different, &Criterion::Literal(ref content)) => {
             for v in values.iter() {
-                match *v {
-                    &Value::String(ref string_content) => {
-                        if string_content == content {
-                            return Some(false);
-                        }
+                if let Value::String(ref string_content) = **v {
+                    if string_content == content {
+                        return Some(false);
                     }
-                    _ => {}
                 }
             }
             Some(true)

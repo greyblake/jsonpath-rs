@@ -7,17 +7,29 @@ rust:
   - beta
   - nightly
 matrix:
-  # allow_failures:
-  #   - rust: nightly
+  allow_failures:
+    - rust: nightly
   include:
-    - env: RUSTFMT
-      rust: nightly
+    - env: RUSTFMT_VERSION="0.4.1"
+      rust: nightly-2018-04-01
       install:
         - rustup component add rustfmt-preview
-        - cargo install --force rustfmt-nightly # TODO: this update takes ~8 mins.
+        - cargo install rustfmt-nightly --force --version $RUSTFMT_VERSION || echo "rustfmt already installed"
       before_script:
         - cargo-fmt fmt -- --version
       script:
         - cargo fmt -- --write-mode=diff
+    - env: CLIPPY_VERSION="0.0.191"
+      rust: nightly-2018-04-01
+      install:
+      - travis_wait cargo install clippy --version $CLIPPY_VERSION || echo "clippy already installed"
+      script:
+        # Fail if clippy output contains "error:" or "warning:"
+        - cargo clippy 2>&1 | tee ./clippy.out && ! grep -qe  "error:\|warning:" ./clippy.out
 script:
   - cargo test
+cache:
+  cargo: true
+before_cache:
+  # Travis can't cache files that are not readable by "others"
+  - chmod -R a+r $HOME/.cargo

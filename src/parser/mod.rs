@@ -10,17 +10,15 @@ use std::error::Error as StdError;
 struct ExpressionParser;
 
 pub fn parse(expression: &str) -> Result<Vec<Criterion>> {
-    let pairs = ExpressionParser::parse(Rule::expression, expression)
+    let mut pairs = ExpressionParser::parse(Rule::expression, expression)
         .map_err(|e| Error::from_kind(ErrorKind::Parse(e.description().to_owned())))?;
 
-    for root in pairs.take(1) {
-        let criteria = parse_tokens(root)?;
-        return Ok(criteria);
-    }
-    unreachable!()
+    let root = pairs.next().unwrap();
+    let criteria = parse_tokens(root)?;
+    Ok(criteria)
 }
 
-fn parse_tokens<'i>(element: Pair<'i, Rule>) -> Result<Vec<Criterion>> {
+fn parse_tokens(element: Pair<Rule>) -> Result<Vec<Criterion>> {
     let mut criteria: Vec<Criterion> = vec![];
     for token in element.into_inner() {
         match token.as_rule() {
