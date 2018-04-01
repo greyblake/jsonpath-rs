@@ -64,9 +64,10 @@ extern crate pest_derive;
 extern crate lazy_static;
 
 mod errors;
+mod filter;
+mod iter;
 mod parser;
 mod selector;
 mod structs;
-mod iter;
 
 pub use selector::Selector;
