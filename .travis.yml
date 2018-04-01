@@ -7,5 +7,17 @@ rust:
   - beta
   - nightly
 matrix:
-  allow_failures:
-    - rust: nightly
+  # allow_failures:
+  #   - rust: nightly
+  include:
+    - env: RUSTFMT
+      rust: nightly
+      install:
+        - rustup component add rustfmt-preview
+        - cargo install --force rustfmt-nightly # TODO: this update takes ~8 mins.
+      before_script:
+        - cargo-fmt fmt -- --version
+      script:
+        - cargo fmt -- --write-mode=diff
+script:
+  - cargo test

@@ -1,12 +1,12 @@
 use serde_json::Value;
-use structs::{Criterion, Step, StackItem, Item, matches};
+use structs::{matches, Criterion, Item, StackItem, Step};
 
 pub struct Iter<'a, 'b> {
     criteria: &'b Vec<Criterion>,
     ci: usize,
     current: Option<StackItem<'a>>,
     root: StackItem<'a>,
-    stack: Vec<StackItem<'a>>
+    stack: Vec<StackItem<'a>>,
 }
 
 impl<'a, 'b> Iterator for Iter<'a, 'b> {
@@ -73,7 +73,7 @@ impl<'a, 'b> Iter<'a, 'b> {
             stack: vec![],
             current: current,
             root: root,
-            ci: 0
+            ci: 0,
         }
     }
 }
@@ -97,7 +97,7 @@ mod tests {
         let criteria = vec![
             Criterion::Root,
             Criterion::NamedChild("dog".to_owned()),
-            Criterion::NamedChild("name".to_owned())
+            Criterion::NamedChild("name".to_owned()),
         ];
 
         let found: Vec<&Value> = Iter::new(&root, &criteria).collect();
@@ -131,7 +131,7 @@ mod tests {
         let criteria = vec![
             Criterion::Root,
             Criterion::NamedChild("user".to_owned()),
-            Criterion::NamedChild("age".to_owned())
+            Criterion::NamedChild("age".to_owned()),
         ];
         let found: Vec<&Value> = Iter::new(&root, &criteria).collect();
         assert_eq!(found, vec![27]);
@@ -141,7 +141,7 @@ mod tests {
             Criterion::Root,
             Criterion::NamedChild("pets".to_owned()),
             Criterion::AnyChild,
-            Criterion::NamedChild("type".to_owned())
+            Criterion::NamedChild("type".to_owned()),
         ];
         let found: Vec<&Value> = Iter::new(&root, &criteria).collect();
         assert_eq!(found, vec!["cat", "dog"]);
@@ -151,7 +151,7 @@ mod tests {
             Criterion::Root,
             Criterion::NamedChild("pets".to_owned()),
             Criterion::AnyChild,
-            Criterion::NamedChild("name".to_owned())
+            Criterion::NamedChild("name".to_owned()),
         ];
         let found: Vec<&Value> = Iter::new(&root, &criteria).collect();
         assert_eq!(found, vec!["Tom", "Rex"]);
@@ -163,13 +163,7 @@ mod tests {
             Criterion::AnyChild,
         ];
         let found: Vec<&Value> = Iter::new(&root, &criteria).collect();
-        assert_eq!(
-            found,
-            vec![
-                &Value::from(27),
-                &Value::from("Sergey")
-            ]
-        );
+        assert_eq!(found, vec![&Value::from(27), &Value::from("Sergey")]);
     }
 
     #[test]
@@ -205,10 +199,7 @@ mod tests {
         "#;
 
         let root: Value = serde_json::from_str(&json).unwrap();
-        let criteria = vec![
-            Criterion::Root,
-            Criterion::IndexedChild(1)
-        ];
+        let criteria = vec![Criterion::Root, Criterion::IndexedChild(1)];
 
         let found: Vec<&Value> = Iter::new(&root, &criteria).collect();
         assert_eq!(found, vec!["Bar"]);

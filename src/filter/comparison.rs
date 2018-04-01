@@ -1,4 +1,3 @@
-
 use serde_json::Value;
 use structs::{Criterion, StackItem};
 
@@ -38,69 +37,51 @@ macro_rules! numbers {
 }
 
 pub fn filter(pattern: &Criterion, value: &Criterion, next: &StackItem) -> Option<bool> {
-  match (pattern, value) {
-    (&Criterion::Equal, &Criterion::Literal(ref content)) => {
-      Some(next.item.value == content)
+    match (pattern, value) {
+        (&Criterion::Equal, &Criterion::Literal(ref content)) => Some(next.item.value == content),
+        (&Criterion::Different, &Criterion::Literal(ref content)) => {
+            Some(next.item.value != content)
+        }
+        (&Criterion::Lower, &Criterion::Number(ref value)) => numbers!(integer => next, <, value),
+        (&Criterion::Greater, &Criterion::Number(ref value)) => numbers!(integer => next, >, value),
+        (&Criterion::Lower, &Criterion::Float(ref value)) => numbers!(float => next, <, value),
+        (&Criterion::Greater, &Criterion::Float(ref value)) => numbers!(float => next, >, value),
+        _ => None,
     }
-    (&Criterion::Different, &Criterion::Literal(ref content)) => {
-      Some(next.item.value != content)
-    }
-    (&Criterion::Lower, &Criterion::Number(ref value)) => {
-      numbers!(integer => next, <, value)
-    }
-    (&Criterion::Greater, &Criterion::Number(ref value)) => {
-      numbers!(integer => next, >, value)
-    }
-    (&Criterion::Lower, &Criterion::Float(ref value)) => {
-      numbers!(float => next, <, value)
-    }
-    (&Criterion::Greater, &Criterion::Float(ref value)) => {
-      numbers!(float => next, >, value)
-    }
-    _ => None
-  }
 }
 
 pub fn vec_filter(pattern: &Criterion, value: &Criterion, values: &Vec<&Value>) -> Option<bool> {
-  match (pattern, value) {
-    (&Criterion::Equal, &Criterion::Literal(ref content)) => {
-      for v in values.iter() {
-        match *v {
-          &Value::String(ref string_content) => {
-            if string_content != content {
-              return Some(false);
+    match (pattern, value) {
+        (&Criterion::Equal, &Criterion::Literal(ref content)) => {
+            for v in values.iter() {
+                match *v {
+                    &Value::String(ref string_content) => {
+                        if string_content != content {
+                            return Some(false);
+                        }
+                    }
+                    _ => {}
+                }
             }
-          },
-          _ => {},
+            Some(true)
         }
-      }
-      Some(true)
-    }
-    (&Criterion::Different, &Criterion::Literal(ref content)) => {
-      for v in values.iter() {
-        match *v {
-          &Value::String(ref string_content) => {
-            if string_content == content {
-              return Some(false);
+        (&Criterion::Different, &Criterion::Literal(ref content)) => {
+            for v in values.iter() {
+                match *v {
+                    &Value::String(ref string_content) => {
+                        if string_content == content {
+                            return Some(false);
+                        }
+                    }
+                    _ => {}
+                }
             }
-          },
-          _ => {},
+            Some(true)
         }
-      }
-      Some(true)
+        (&Criterion::Lower, &Criterion::Number(ref _value)) => unimplemented!(),
+        (&Criterion::Greater, &Criterion::Number(ref _value)) => unimplemented!(),
+        (&Criterion::Lower, &Criterion::Float(ref _value)) => unimplemented!(),
+        (&Criterion::Greater, &Criterion::Float(ref _value)) => unimplemented!(),
+        _ => None,
     }
-    (&Criterion::Lower, &Criterion::Number(ref _value)) => {
-      unimplemented!()
-    }
-    (&Criterion::Greater, &Criterion::Number(ref _value)) => {
-      unimplemented!()
-    }
-    (&Criterion::Lower, &Criterion::Float(ref _value)) => {
-      unimplemented!()
-    }
-    (&Criterion::Greater, &Criterion::Float(ref _value)) => {
-      unimplemented!()
-    }
-    _ => None
-  }
 }
