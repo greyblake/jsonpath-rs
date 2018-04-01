@@ -2,6 +2,9 @@
 
 The library is in hard development stage.
 
+[![Build Status](https://travis-ci.org/greyblake/jsonpath-rs.svg?branch=master)](https://travis-ci.org/greyblake/jsonpath-rs)
+
+
 ## Example
 
 ```rust
@@ -68,6 +71,10 @@ fn main() {
   * [x] operator `!=`
   * [x] operator `>`
   * [x] operator `<`
+
+## Supported Rust versions
+
+Jsonpath requires rust version 1.23 or higher.
 
 ## License
 
