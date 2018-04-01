@@ -62,8 +62,12 @@ fn main() {
 * [ ] Publish a new version
 * [ ] Mutable iterator
 * [ ] Support filters
-  * [ ] `[?(<expression>)]` - Filter expression. Expression must evaluate to a boolean value.
-  * [ ] `@` - current element
+  * [x] `[?(<expression>)]` - Filter expression. Expression must evaluate to a boolean value.
+  * [x] `@` - current element
+  * [x] operator `==`
+  * [x] operator `!=`
+  * [x] operator `>`
+  * [x] operator `<`
 
 ## License
 
@@ -72,3 +76,4 @@ fn main() {
 ## Contributors
 
 - [greyblake](https://github.com/greyblake) Sergey Potapov - creator, maintainer.
+- [MarcAntoine-Arnaud](https://github.com/MarcAntoine-Arnaud) Marc-Antoine ARNAUD - filters support
