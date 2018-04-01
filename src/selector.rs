@@ -6,7 +6,7 @@ use structs::Criterion;
 use iter::Iter;
 
 pub struct Selector {
-    criteria: Vec<Criterion>
+    criteria: Vec<Criterion>,
 }
 
 impl Selector {

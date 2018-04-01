@@ -1,4 +1,3 @@
-
 use pest::iterators::Pair;
 use pest::Parser;
 
@@ -27,38 +26,42 @@ fn parse_tokens<'i>(element: Pair<'i, Rule>) -> Result<Vec<Criterion>> {
         match token.as_rule() {
             Rule::dollar => criteria.push(Criterion::Root),
             Rule::arobase => criteria.push(Criterion::Element),
-            Rule::condition => {
-                match token.into_inner().next().unwrap().as_rule() {
-                    Rule::equal => {criteria.push(Criterion::Equal);},
-                    Rule::different => {criteria.push(Criterion::Different);},
-                    Rule::greater => {criteria.push(Criterion::Greater);},
-                    Rule::lower => {criteria.push(Criterion::Lower);},
-                    _ => {}
+            Rule::condition => match token.into_inner().next().unwrap().as_rule() {
+                Rule::equal => {
+                    criteria.push(Criterion::Equal);
                 }
+                Rule::different => {
+                    criteria.push(Criterion::Different);
+                }
+                Rule::greater => {
+                    criteria.push(Criterion::Greater);
+                }
+                Rule::lower => {
+                    criteria.push(Criterion::Lower);
+                }
+                _ => {}
             },
             Rule::literal => {
                 let literal = token.into_inner().next().unwrap().as_str().to_owned();
                 criteria.push(Criterion::Literal(literal))
-            },
+            }
             Rule::number => {
                 let value = token.as_str().parse::<i64>().unwrap();
                 criteria.push(Criterion::Number(value))
-            },
+            }
             Rule::float => {
                 let value = token.as_str().parse::<f64>().unwrap();
                 criteria.push(Criterion::Float(value))
-            },
+            }
             Rule::filter => {
                 let filter_criteria = parse_tokens(token)?;
                 criteria.push(Criterion::Filter(filter_criteria))
-            },
+            }
             Rule::child => {
                 let ident = token.into_inner().next().unwrap().as_str().to_owned();
                 criteria.push(Criterion::NamedChild(ident))
-            },
-            Rule::any_child => {
-                criteria.push(Criterion::AnyChild)
-            },
+            }
+            Rule::any_child => criteria.push(Criterion::AnyChild),
             Rule::indexed_child => {
                 let index: usize = token.into_inner().next().unwrap().as_str().parse()?;
                 criteria.push(Criterion::IndexedChild(index));
@@ -174,13 +177,7 @@ mod tests {
     fn test_slice_from() {
         let exp = "$[2:]";
         let criteria = parse(exp).unwrap();
-        assert_eq!(
-            criteria,
-            vec![
-                Criterion::Root,
-                Criterion::SliceFrom(2),
-            ]
-        );
+        assert_eq!(criteria, vec![Criterion::Root, Criterion::SliceFrom(2)]);
     }
 
     #[test]
@@ -192,7 +189,7 @@ mod tests {
             Criterion::Root,
             Criterion::NamedChild("title".to_owned()),
             Criterion::Equal,
-            Criterion::Literal("Sword Of Honor".to_owned())
+            Criterion::Literal("Sword Of Honor".to_owned()),
         ];
 
         assert_eq!(
@@ -214,7 +211,7 @@ mod tests {
             Criterion::Element,
             Criterion::NamedChild("title".to_owned()),
             Criterion::Different,
-            Criterion::Literal("Sword Of Honor".to_owned())
+            Criterion::Literal("Sword Of Honor".to_owned()),
         ];
 
         assert_eq!(
