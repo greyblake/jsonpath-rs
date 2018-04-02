@@ -2,38 +2,38 @@ use serde_json::Value;
 use structs::{Criterion, StackItem};
 
 macro_rules! numbers {
-  (integer => $next:expr, $operator:tt, $value:expr) => {{
-    match *$next.item.value {
-      Value::Number(ref source) => {
-        match source.as_f64() {
-          Some(ref float_value) => Some(*float_value $operator *$value as f64),
-          None => {
-            match source.as_i64() {
-              Some(ref int_value) => Some(int_value $operator $value),
-              None => None
-            }
-          }
+    (integer => $next:expr, $operator:tt, $value:expr) => {{
+        match *$next.item.value {
+            Value::Number(ref source) => {
+                match source.as_f64() {
+                    Some(ref float_value) => Some(*float_value $operator *$value as f64),
+                    None => {
+                        match source.as_i64() {
+                            Some(ref int_value) => Some(int_value $operator $value),
+                            None => None
+                        }
+                    }
+                }
+            },
+            _ => None,
         }
-      },
-      _ => None,
-    }
-  }};
-  (float => $next:expr, $operator:tt, $value:expr) => {{
-    match *$next.item.value {
-      Value::Number(ref source) => {
-        match source.as_f64() {
-          Some(ref float_value) => Some(float_value $operator ($value)),
-          None => {
-            match source.as_i64() {
-              Some(ref int_value) => Some((*int_value as f64) $operator *$value),
-              None => None
-            }
-          }
+    }};
+    (float => $next:expr, $operator:tt, $value:expr) => {{
+        match *$next.item.value {
+            Value::Number(ref source) => {
+                match source.as_f64() {
+                    Some(ref float_value) => Some(float_value $operator ($value)),
+                    None => {
+                        match source.as_i64() {
+                            Some(ref int_value) => Some((*int_value as f64) $operator *$value),
+                            None => None
+                        }
+                    }
+                }
+            },
+            _ => None,
         }
-      },
-      _ => None,
-    }
-  }}
+    }}
 }
 
 pub fn filter(pattern: &Criterion, value: &Criterion, next: &StackItem) -> Option<bool> {
