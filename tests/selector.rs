@@ -68,12 +68,22 @@ fn test_filter() {
         "$.store.books[?(@.category == 'fiction')].title",
         ["Sword of Honour", "Moby Dick", "The Lord of the Rings"]
     );
-
-    assert_jsonpath_str!("$.store.books[?(@.price == 8.95)].title", ["Sayings of the Century"]);
-    assert_jsonpath_str!("$.store.books[?(@.price != 8.95)].title", ["Sword of Honour", "Moby Dick", "The Lord of the Rings"]);
-
-    assert_jsonpath_str!("$.store.books[?(@.price == 9)].title", ["Moby Dick"]);
-    assert_jsonpath_str!("$.store.books[?(@.price != 9)].title", ["Sayings of the Century", "Sword of Honour", "The Lord of the Rings"]);
+    assert_jsonpath_str!(
+        "$.store.books[?(@.price == 8.95)].title",
+        ["Sayings of the Century"]
+    );
+    assert_jsonpath_str!(
+        "$.store.books[?(@.price != 8.95)].title",
+        ["Sword of Honour", "Moby Dick", "The Lord of the Rings"]
+    );
+    assert_jsonpath_str!(
+        "$.store.books[?(@.price == 9)].title",
+        ["Moby Dick"]
+    );
+    assert_jsonpath_str!(
+        "$.store.books[?(@.price != 9)].title",
+        ["Sayings of the Century", "Sword of Honour", "The Lord of the Rings"]
+    );
 }
 
 #[test]
