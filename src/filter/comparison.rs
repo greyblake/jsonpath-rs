@@ -39,9 +39,35 @@ macro_rules! numbers {
 pub fn filter(pattern: &Criterion, value: &Criterion, next: &StackItem) -> Option<bool> {
     match (pattern, value) {
         (&Criterion::Equal, &Criterion::Literal(ref content)) => Some(next.item.value == content),
+        (&Criterion::Equal, &Criterion::Array(ref content)) => {
+            for item in content.iter() {
+                match item {
+                    &Criterion::Literal(ref value) => {
+                        if value == next.item.value {
+                            return Some(true);
+                        }
+                    },
+                    _ => {},
+                }
+            }
+            Some(false)
+        },
         (&Criterion::Different, &Criterion::Literal(ref content)) => {
             Some(next.item.value != content)
         }
+        (&Criterion::Different, &Criterion::Array(ref content)) => {
+            for item in content.iter() {
+                match item {
+                    &Criterion::Literal(ref value) => {
+                        if value == next.item.value {
+                            return Some(false);
+                        }
+                    },
+                    _ => {},
+                }
+            }
+            Some(true)
+        },
         (&Criterion::Lower, &Criterion::Number(ref value)) => numbers!(integer => next, <, value),
         (&Criterion::Greater, &Criterion::Number(ref value)) => numbers!(integer => next, >, value),
         (&Criterion::Lower, &Criterion::Float(ref value)) => numbers!(float => next, <, value),

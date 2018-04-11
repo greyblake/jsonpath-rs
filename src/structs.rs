@@ -23,6 +23,8 @@ pub enum Criterion {
     SliceTo(::std::ops::RangeTo<usize>),
     // [4:]
     SliceFrom(usize),
+    // [values]
+    Array(Vec<Criterion>),
     // ==
     Equal,
     // !=
@@ -63,6 +65,7 @@ pub fn matches<'a>(stack: &mut StackItem, criterion: &Criterion, root: &StackIte
         Criterion::Literal(ref _content) => false,
         Criterion::Number(ref _value) => false,
         Criterion::Float(ref _value) => false,
+        Criterion::Array(ref _value) => false,
         Criterion::NamedChild(ref child_name) => match step {
             Step::Key(key) => child_name == key,
             _ => false,

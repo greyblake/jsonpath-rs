@@ -55,6 +55,11 @@ fn parse_tokens(element: Pair<Rule>) -> Result<Vec<Criterion>> {
                 let filter_criteria = parse_tokens(token)?;
                 criteria.push(Criterion::Filter(filter_criteria))
             }
+            Rule::array => {
+                // println!("parse {:?}", token);
+                let array_criteria = parse_tokens(token)?;
+                criteria.push(Criterion::Array(array_criteria))
+            }
             Rule::child => {
                 let ident = token.into_inner().next().unwrap().as_str().to_owned();
                 criteria.push(Criterion::NamedChild(ident))
@@ -80,8 +85,8 @@ fn parse_tokens(element: Pair<Rule>) -> Result<Vec<Criterion>> {
                 let from: usize = iter.next().unwrap().as_str().parse()?;
                 criteria.push(Criterion::SliceFrom(from));
             }
-            lol => {
-                println!("{:?}", lol);
+            rule => {
+                println!("Unable to reach rule: {:?}", rule);
                 unreachable!()
             }
         }

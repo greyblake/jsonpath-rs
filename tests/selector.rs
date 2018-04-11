@@ -71,6 +71,26 @@ fn test_filter() {
 }
 
 #[test]
+fn test_filter_array_string_conditions() {
+    assert_jsonpath_f64!(
+        "$.store.books[?(@.author == ['Evelyn Waugh' ])].price",
+        [12.99]
+    );
+    assert_jsonpath_f64!(
+        "$.store.books[?(@.author == ['Evelyn Waugh', 'Nigel Rees'])].price",
+        [8.95, 12.99]
+    );
+    assert_jsonpath_str!(
+        "$.store.books[?(@.author == ['Evelyn Waugh'])].title",
+        ["Sword of Honour"]
+    );
+    assert_jsonpath_str!(
+        "$.store.books[?(@.author == ['Evelyn Waugh', 'Nigel Rees'])].title",
+        ["Sayings of the Century", "Sword of Honour"]
+    );
+}
+
+#[test]
 fn test_filter_number_comparison() {
     assert_jsonpath_str!(
         "$.store.books[?(@.price > 9.99)].title",

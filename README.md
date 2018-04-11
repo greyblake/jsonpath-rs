@@ -71,6 +71,12 @@ fn main() {
   * [x] operator `!=`
   * [x] operator `>`
   * [x] operator `<`
+  * [x] string
+  * [x] float
+  * [x] integer
+  * [x] array of string
+  * [ ] array of float
+  * [ ] array of number
 
 ## Supported Rust versions
 
