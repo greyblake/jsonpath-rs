@@ -2,23 +2,6 @@ use serde_json::Value;
 use structs::{Criterion, StackItem};
 
 macro_rules! numbers {
-    (literal => $next:expr, $operator:tt, $value:expr) => {{
-        match *$next.item.value {
-            Value::String(ref source) => {
-                Some(source $operator $value)
-                // match source.as_f64() {
-                //     Some(ref float_value) => Some(*float_value $operator *$value as f64),
-                //     None => {
-                //         match source.as_i64() {
-                //             Some(ref int_value) => Some(int_value $operator $value),
-                //             None => None
-                //         }
-                //     }
-                // }
-            },
-            _ => None,
-        }
-    }};
     (integer => $next:expr, $operator:tt, $value:expr) => {{
         match *$next.item.value {
             Value::Number(ref source) => {
