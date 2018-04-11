@@ -107,7 +107,15 @@ fn test_filter_array_string_conditions() {
 }
 
 #[test]
-fn test_filter_number_comparison() {
+fn test_filter_lower_greater_comparison() {
+    assert_jsonpath_f64!(
+        "$.store.books[?(@.author > 'He')].price",
+        [8.95, 9.0, 22.99]
+    );
+    assert_jsonpath_f64!(
+        "$.store.books[?(@.author < 'He')].price",
+        [12.99]
+    );
     assert_jsonpath_str!(
         "$.store.books[?(@.price > 9.99)].title",
         ["Sword of Honour", "The Lord of the Rings"]
