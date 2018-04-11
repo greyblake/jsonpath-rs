@@ -76,13 +76,14 @@ fn test_filter() {
         "$.store.books[?(@.price != 8.95)].title",
         ["Sword of Honour", "Moby Dick", "The Lord of the Rings"]
     );
-    assert_jsonpath_str!(
-        "$.store.books[?(@.price == 9)].title",
-        ["Moby Dick"]
-    );
+    assert_jsonpath_str!("$.store.books[?(@.price == 9)].title", ["Moby Dick"]);
     assert_jsonpath_str!(
         "$.store.books[?(@.price != 9)].title",
-        ["Sayings of the Century", "Sword of Honour", "The Lord of the Rings"]
+        [
+            "Sayings of the Century",
+            "Sword of Honour",
+            "The Lord of the Rings"
+        ]
     );
 }
 
@@ -112,10 +113,7 @@ fn test_filter_lower_greater_comparison() {
         "$.store.books[?(@.author > 'He')].price",
         [8.95, 9.0, 22.99]
     );
-    assert_jsonpath_f64!(
-        "$.store.books[?(@.author < 'He')].price",
-        [12.99]
-    );
+    assert_jsonpath_f64!("$.store.books[?(@.author < 'He')].price", [12.99]);
     assert_jsonpath_str!(
         "$.store.books[?(@.price > 9.99)].title",
         ["Sword of Honour", "The Lord of the Rings"]
