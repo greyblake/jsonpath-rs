@@ -48,17 +48,17 @@ fn test_index() {
 
 #[test]
 fn test_slice() {
-    assert_jsonpath_f64!("$.store.books[1:2].price", [12.99, 8.99]);
+    assert_jsonpath_f64!("$.store.books[1:2].price", [12.99, 9.0]);
 }
 
 #[test]
 fn test_slice_to() {
-    assert_jsonpath_f64!("$.store.books[:3].price", [8.95, 12.99, 8.99]);
+    assert_jsonpath_f64!("$.store.books[:3].price", [8.95, 12.99, 9.0]);
 }
 
 #[test]
 fn test_slice_from() {
-    assert_jsonpath_f64!("$.store.books[1:].price", [12.99, 8.99, 22.99]);
+    assert_jsonpath_f64!("$.store.books[1:].price", [12.99, 9.0, 22.99]);
 }
 
 #[test]
@@ -68,6 +68,12 @@ fn test_filter() {
         "$.store.books[?(@.category == 'fiction')].title",
         ["Sword of Honour", "Moby Dick", "The Lord of the Rings"]
     );
+
+    assert_jsonpath_str!("$.store.books[?(@.price == 8.95)].title", ["Sayings of the Century"]);
+    assert_jsonpath_str!("$.store.books[?(@.price != 8.95)].title", ["Sword of Honour", "Moby Dick", "The Lord of the Rings"]);
+
+    assert_jsonpath_str!("$.store.books[?(@.price == 9)].title", ["Moby Dick"]);
+    assert_jsonpath_str!("$.store.books[?(@.price != 9)].title", ["Sayings of the Century", "Sword of Honour", "The Lord of the Rings"]);
 }
 
 #[test]

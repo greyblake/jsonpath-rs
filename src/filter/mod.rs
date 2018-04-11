@@ -5,7 +5,6 @@ use iter::Iter;
 mod comparison;
 
 pub fn process_filter<'a>(stack: &mut StackItem, path: &[Criterion], root: &StackItem<'a>) -> bool {
-    println!("Process Filter: {:?}", path);
     match path[0] {
         Criterion::Element => match path[1] {
             Criterion::NamedChild(ref child_name) => {
