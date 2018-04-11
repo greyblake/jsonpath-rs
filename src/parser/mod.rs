@@ -56,7 +56,6 @@ fn parse_tokens(element: Pair<Rule>) -> Result<Vec<Criterion>> {
                 criteria.push(Criterion::Filter(filter_criteria))
             }
             Rule::array => {
-                // println!("parse {:?}", token);
                 let array_criteria = parse_tokens(token)?;
                 criteria.push(Criterion::Array(array_criteria))
             }

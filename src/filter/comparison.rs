@@ -75,19 +75,13 @@ pub fn filter(pattern: &Criterion, value: &Criterion, next: &StackItem) -> Optio
             Some(true)
         }
         (&Criterion::Lower, &Criterion::Literal(ref value)) => match next.item.value {
-            &Value::String(ref content) => {
-                println!("{:?}", content < value);
-                Some(content < value)
-            }
+            &Value::String(ref content) => Some(content < value),
             _ => None,
         },
         (&Criterion::Lower, &Criterion::Number(ref value)) => numbers!(integer => next, <, value),
         (&Criterion::Lower, &Criterion::Float(ref value)) => numbers!(float => next, <, value),
         (&Criterion::Greater, &Criterion::Literal(ref value)) => match next.item.value {
-            &Value::String(ref content) => {
-                println!("{:?}", content > value);
-                Some(content > value)
-            }
+            &Value::String(ref content) => Some(content > value),
             _ => None,
         },
         (&Criterion::Greater, &Criterion::Number(ref value)) => numbers!(integer => next, >, value),

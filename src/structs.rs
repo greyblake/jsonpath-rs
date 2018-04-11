@@ -70,7 +70,10 @@ pub fn matches<'a>(stack: &mut StackItem, criterion: &Criterion, root: &StackIte
             Step::Key(key) => child_name == key,
             _ => false,
         },
-        Criterion::Filter(ref path) => filter::process_filter(stack, path, root),
+        Criterion::Filter(ref path) => {
+            let mut filter_stack = stack.clone();
+            filter::process_filter(&mut filter_stack, path, root)
+        }
         Criterion::AnyChild => match step {
             Step::Key(_) => true,
             Step::Index(_) => true,
@@ -140,6 +143,13 @@ impl<'a> Item<'a> {
     }
 }
 
+impl<'a> Clone for Item<'a> {
+    fn clone(&self) -> Item<'a> {
+        Item::new(self.value)
+    }
+}
+
+#[derive(Clone)]
 pub struct StackItem<'a> {
     pub item: Item<'a>,
     pub step: Step<'a>,
