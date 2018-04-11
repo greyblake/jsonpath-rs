@@ -1,4 +1,5 @@
 use serde_json::Value;
+use std;
 use structs::{Criterion, StackItem};
 
 macro_rules! numbers {
@@ -40,10 +41,18 @@ pub fn filter(pattern: &Criterion, value: &Criterion, next: &StackItem) -> Optio
     match (pattern, value) {
         (&Criterion::Equal, &Criterion::Literal(ref content)) => Some(next.item.value == content),
         (&Criterion::Equal, &Criterion::Number(ref content)) => Some(next.item.value == content),
-        (&Criterion::Equal, &Criterion::Float(ref content)) => Some(next.item.value == content),
+        (&Criterion::Equal, &Criterion::Float(ref content)) => {
+            if let Value::Number(ref value) = *next.item.value {
+                value
+                    .as_f64()
+                    .map(|float_value| (float_value - content).abs() < std::f64::EPSILON)
+            } else {
+                None
+            }
+        }
         (&Criterion::Equal, &Criterion::Array(ref content)) => {
             for item in content.iter() {
-                if let &Criterion::Literal(ref value) = item {
+                if let Criterion::Literal(ref value) = *item {
                     if value == next.item.value {
                         return Some(true);
                     }
@@ -57,10 +66,18 @@ pub fn filter(pattern: &Criterion, value: &Criterion, next: &StackItem) -> Optio
         (&Criterion::Different, &Criterion::Number(ref content)) => {
             Some(next.item.value != content)
         }
-        (&Criterion::Different, &Criterion::Float(ref content)) => Some(next.item.value != content),
+        (&Criterion::Different, &Criterion::Float(ref content)) => {
+            if let Value::Number(ref value) = *next.item.value {
+                value
+                    .as_f64()
+                    .map(|float_value| (float_value - content).abs() > std::f64::EPSILON)
+            } else {
+                None
+            }
+        }
         (&Criterion::Different, &Criterion::Array(ref content)) => {
             for item in content.iter() {
-                if let &Criterion::Literal(ref value) = item {
+                if let Criterion::Literal(ref value) = *item {
                     if value == next.item.value {
                         return Some(false);
                     }
