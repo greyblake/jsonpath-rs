@@ -43,13 +43,10 @@ pub fn filter(pattern: &Criterion, value: &Criterion, next: &StackItem) -> Optio
         (&Criterion::Equal, &Criterion::Float(ref content)) => Some(next.item.value == content),
         (&Criterion::Equal, &Criterion::Array(ref content)) => {
             for item in content.iter() {
-                match item {
-                    &Criterion::Literal(ref value) => {
-                        if value == next.item.value {
-                            return Some(true);
-                        }
+                if let &Criterion::Literal(ref value) = item {
+                    if value == next.item.value {
+                        return Some(true);
                     }
-                    _ => {}
                 }
             }
             Some(false)
@@ -63,25 +60,22 @@ pub fn filter(pattern: &Criterion, value: &Criterion, next: &StackItem) -> Optio
         (&Criterion::Different, &Criterion::Float(ref content)) => Some(next.item.value != content),
         (&Criterion::Different, &Criterion::Array(ref content)) => {
             for item in content.iter() {
-                match item {
-                    &Criterion::Literal(ref value) => {
-                        if value == next.item.value {
-                            return Some(false);
-                        }
+                if let &Criterion::Literal(ref value) = item {
+                    if value == next.item.value {
+                        return Some(false);
                     }
-                    _ => {}
                 }
             }
             Some(true)
         }
-        (&Criterion::Lower, &Criterion::Literal(ref value)) => match next.item.value {
-            &Value::String(ref content) => Some(content < value),
+        (&Criterion::Lower, &Criterion::Literal(ref value)) => match *next.item.value {
+            Value::String(ref content) => Some(content < value),
             _ => None,
         },
         (&Criterion::Lower, &Criterion::Number(ref value)) => numbers!(integer => next, <, value),
         (&Criterion::Lower, &Criterion::Float(ref value)) => numbers!(float => next, <, value),
-        (&Criterion::Greater, &Criterion::Literal(ref value)) => match next.item.value {
-            &Value::String(ref content) => Some(content > value),
+        (&Criterion::Greater, &Criterion::Literal(ref value)) => match *next.item.value {
+            Value::String(ref content) => Some(content > value),
             _ => None,
         },
         (&Criterion::Greater, &Criterion::Number(ref value)) => numbers!(integer => next, >, value),
