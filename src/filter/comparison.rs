@@ -1,109 +1,19 @@
 use serde_json::Value;
-use std;
-use structs::{Criterion, StackItem};
+use structs::Criterion;
 
-macro_rules! numbers {
-    (integer => $next:expr, $operator:tt, $value:expr) => {{
-        match *$next.item.value {
-            Value::Number(ref source) => {
-                match source.as_f64() {
-                    Some(ref float_value) => Some(*float_value $operator *$value as f64),
-                    None => {
-                        match source.as_i64() {
-                            Some(ref int_value) => Some(int_value $operator $value),
-                            None => None
-                        }
-                    }
-                }
-            },
-            _ => None,
-        }
-    }};
-    (float => $next:expr, $operator:tt, $value:expr) => {{
-        match *$next.item.value {
-            Value::Number(ref source) => {
-                match source.as_f64() {
-                    Some(ref float_value) => Some(float_value $operator ($value)),
-                    None => {
-                        match source.as_i64() {
-                            Some(ref int_value) => Some((*int_value as f64) $operator *$value),
-                            None => None
-                        }
-                    }
-                }
-            },
-            _ => None,
-        }
-    }}
-}
-
-pub fn filter(pattern: &Criterion, value: &Criterion, next: &StackItem) -> Option<bool> {
-    match (pattern, value) {
-        (&Criterion::Equal, &Criterion::Literal(ref content)) => Some(next.item.value == content),
-        (&Criterion::Equal, &Criterion::Number(ref content)) => Some(next.item.value == content),
-        (&Criterion::Equal, &Criterion::Float(ref content)) => {
-            if let Value::Number(ref value) = *next.item.value {
-                value
-                    .as_f64()
-                    .map(|float_value| (float_value - content).abs() < std::f64::EPSILON)
-            } else {
-                None
-            }
-        }
-        (&Criterion::Equal, &Criterion::Array(ref content)) => {
-            for item in content.iter() {
-                if let Criterion::Literal(ref value) = *item {
-                    if value == next.item.value {
-                        return Some(true);
-                    }
-                }
-            }
-            Some(false)
-        }
-        (&Criterion::Different, &Criterion::Literal(ref content)) => {
-            Some(next.item.value != content)
-        }
-        (&Criterion::Different, &Criterion::Number(ref content)) => {
-            Some(next.item.value != content)
-        }
-        (&Criterion::Different, &Criterion::Float(ref content)) => {
-            if let Value::Number(ref value) = *next.item.value {
-                value
-                    .as_f64()
-                    .map(|float_value| (float_value - content).abs() > std::f64::EPSILON)
-            } else {
-                None
-            }
-        }
-        (&Criterion::Different, &Criterion::Array(ref content)) => {
-            for item in content.iter() {
-                if let Criterion::Literal(ref value) = *item {
-                    if value == next.item.value {
-                        return Some(false);
-                    }
-                }
-            }
-            Some(true)
-        }
-        (&Criterion::Lower, &Criterion::Literal(ref value)) => match *next.item.value {
-            Value::String(ref content) => Some(content < value),
-            _ => None,
-        },
-        (&Criterion::Lower, &Criterion::Number(ref value)) => numbers!(integer => next, <, value),
-        (&Criterion::Lower, &Criterion::Float(ref value)) => numbers!(float => next, <, value),
-        (&Criterion::Greater, &Criterion::Literal(ref value)) => match *next.item.value {
-            Value::String(ref content) => Some(content > value),
-            _ => None,
-        },
-        (&Criterion::Greater, &Criterion::Number(ref value)) => numbers!(integer => next, >, value),
-        (&Criterion::Greater, &Criterion::Float(ref value)) => numbers!(float => next, >, value),
+pub fn filter(pattern: &Criterion, value: &Criterion, values: &[&Value]) -> Option<bool> {
+    match pattern {
+        &Criterion::Equal => is_equal(value, values),
+        &Criterion::Different => is_different(value, values),
+        &Criterion::Lower => is_lower(value, values),
+        &Criterion::Greater => is_greater(value, values),
         _ => None,
     }
 }
 
-pub fn vec_filter(pattern: &Criterion, value: &Criterion, values: &[&Value]) -> Option<bool> {
-    match (pattern, value) {
-        (&Criterion::Equal, &Criterion::Literal(ref content)) => {
+fn is_equal(value: &Criterion, values: &[&Value]) -> Option<bool> {
+    match value {
+        &Criterion::Literal(ref content) => {
             for v in values.iter() {
                 if let Value::String(ref string_content) = **v {
                     if string_content != content {
@@ -113,7 +23,41 @@ pub fn vec_filter(pattern: &Criterion, value: &Criterion, values: &[&Value]) -> 
             }
             Some(true)
         }
-        (&Criterion::Different, &Criterion::Literal(ref content)) => {
+        &Criterion::Number(ref content) => {
+            for v in values.iter() {
+                if let Value::Number(ref number_content) = **v {
+                    if number_content.as_i64() != Some(*content) {
+                        return Some(false);
+                    }
+                }
+            }
+            Some(true)
+        }
+        &Criterion::Float(ref content) => {
+            for v in values.iter() {
+                if let Value::Number(ref number_content) = **v {
+                    if number_content.as_f64() != Some(*content) {
+                        return Some(false);
+                    }
+                }
+            }
+            Some(true)
+        }
+        &Criterion::Array(ref content) => {
+            for item in content {
+                if let Some(true) = is_equal(item, values) {
+                    return Some(true);
+                }
+            }
+            Some(false)
+        }
+        _ => None,
+    }
+}
+
+fn is_different(value: &Criterion, values: &[&Value]) -> Option<bool> {
+    match value {
+        &Criterion::Literal(ref content) => {
             for v in values.iter() {
                 if let Value::String(ref string_content) = **v {
                     if string_content == content {
@@ -123,10 +67,106 @@ pub fn vec_filter(pattern: &Criterion, value: &Criterion, values: &[&Value]) -> 
             }
             Some(true)
         }
-        (&Criterion::Lower, &Criterion::Number(ref _value)) => unimplemented!(),
-        (&Criterion::Greater, &Criterion::Number(ref _value)) => unimplemented!(),
-        (&Criterion::Lower, &Criterion::Float(ref _value)) => unimplemented!(),
-        (&Criterion::Greater, &Criterion::Float(ref _value)) => unimplemented!(),
+        &Criterion::Number(ref content) => {
+            for v in values.iter() {
+                if let Value::Number(ref number_content) = **v {
+                    if number_content.as_i64() == Some(*content) {
+                        return Some(false);
+                    }
+                }
+            }
+            Some(true)
+        }
+        &Criterion::Float(ref content) => {
+            for v in values.iter() {
+                if let Value::Number(ref number_content) = **v {
+                    if number_content.as_f64() == Some(*content) {
+                        return Some(false);
+                    }
+                }
+            }
+            Some(true)
+        }
+        &Criterion::Array(ref content) => {
+            for item in content {
+                if let Some(true) = is_equal(item, values) {
+                    return Some(true);
+                }
+            }
+            Some(false)
+        }
+        _ => None,
+    }
+}
+
+fn is_lower(value: &Criterion, values: &[&Value]) -> Option<bool> {
+    match value {
+        &Criterion::Literal(ref content) => {
+            for v in values.iter() {
+                if let Value::String(ref string_content) = **v {
+                    if string_content >= content {
+                        return Some(false);
+                    }
+                }
+            }
+            Some(true)
+        }
+        &Criterion::Number(ref content) => {
+            for v in values.iter() {
+                if let Value::Number(ref number_content) = **v {
+                    if number_content.as_f64() >= Some(*content as f64) {
+                        return Some(false);
+                    }
+                }
+            }
+            Some(true)
+        }
+        &Criterion::Float(ref content) => {
+            for v in values.iter() {
+                if let Value::Number(ref number_content) = **v {
+                    if number_content.as_f64() >= Some(*content) {
+                        return Some(false);
+                    }
+                }
+            }
+            Some(true)
+        }
+        _ => None,
+    }
+}
+
+fn is_greater(value: &Criterion, values: &[&Value]) -> Option<bool> {
+    match value {
+        &Criterion::Literal(ref content) => {
+            for v in values.iter() {
+                if let Value::String(ref string_content) = **v {
+                    if string_content <= content {
+                        return Some(false);
+                    }
+                }
+            }
+            Some(true)
+        }
+        &Criterion::Number(ref content) => {
+            for v in values.iter() {
+                if let Value::Number(ref number_content) = **v {
+                    if number_content.as_f64() <= Some(*content as f64) {
+                        return Some(false);
+                    }
+                }
+            }
+            Some(true)
+        }
+        &Criterion::Float(ref content) => {
+            for v in values.iter() {
+                if let Value::Number(ref number_content) = **v {
+                    if number_content.as_f64() <= Some(*content) {
+                        return Some(false);
+                    }
+                }
+            }
+            Some(true)
+        }
         _ => None,
     }
 }

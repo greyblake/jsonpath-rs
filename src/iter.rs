@@ -43,11 +43,13 @@ impl<'a, 'b> Iterator for Iter<'a, 'b> {
                     }
                 } else {
                     // the step and criterion do not match
-                    match self.stack.last_mut().unwrap().next() {
-                        Some(new_cur) => self.current = Some(new_cur),
-                        None => {
-                            self.ci -= 1;
-                            self.current = self.stack.pop();
+                    if !self.stack.is_empty() {
+                        match self.stack.last_mut().unwrap().next() {
+                            Some(new_cur) => self.current = Some(new_cur),
+                            None => {
+                                self.ci -= 1;
+                                self.current = self.stack.pop();
+                            }
                         }
                     }
                 }
