@@ -1,6 +1,6 @@
 [package]
 name = "jsonpath"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Sergey Potapov <blake131313@gmail.com>"]
 description = "JSONPath for Rust"
 keywords = ["jsonpath", "json", "xpath", "javascript", "query"]
