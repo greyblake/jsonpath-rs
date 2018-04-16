@@ -6,7 +6,7 @@ double_dot =  _{ ".." }
 
 alpha = _{ 'a'..'z' | 'A'..'Z' }
 digit = _{ '0'..'9' }
-special_charaters = _{ "_" | "-" }
+special_charaters = _{ "_" | "-" | "/" | "\\" }
 ident = { (alpha | digit | special_charaters)+ }
 number = { digit+ }
 float = { digit+ ~ "." ~ digit+ }
