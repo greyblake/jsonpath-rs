@@ -75,7 +75,7 @@ fn main() {
   * [ ] operator `<=`
   * [ ] operator `=~`
   * [ ] filter comparison with expression on the right side `[?(<exporession> <operator> <expression>)]`
-  * [x] string
+  * [x] string
   * [x] float
   * [x] integer
   * [x] array of string
