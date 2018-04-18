@@ -71,12 +71,20 @@ fn main() {
   * [x] operator `!=`
   * [x] operator `>`
   * [x] operator `<`
-  * [x] string
+  * [ ] operator `>=`
+  * [ ] operator `<=`
+  * [ ] operator `=~`
+  * [ ] filter comparison with expression on the right side `[?(<exporession> <operator> <expression>)]`
+  * [x] string
   * [x] float
   * [x] integer
   * [x] array of string
   * [ ] array of float
   * [ ] array of number
+  * [ ] sub script expression `()`
+  * [ ] combine expression
+    * [ ] `&&`
+    * [ ] `||`
 
 ## Supported Rust versions
 
