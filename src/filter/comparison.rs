@@ -19,6 +19,8 @@ fn is_equal(value: &Criterion, values: &[&Value]) -> Option<bool> {
                     if string_content != content {
                         return Some(false);
                     }
+                } else {
+                    return Some(false);
                 }
             }
             Some(true)
@@ -29,6 +31,8 @@ fn is_equal(value: &Criterion, values: &[&Value]) -> Option<bool> {
                     if number_content.as_i64() != Some(*content) {
                         return Some(false);
                     }
+                } else {
+                    return Some(false);
                 }
             }
             Some(true)
@@ -39,6 +43,8 @@ fn is_equal(value: &Criterion, values: &[&Value]) -> Option<bool> {
                     if number_content.as_f64() != Some(*content) {
                         return Some(false);
                     }
+                } else {
+                    return Some(false);
                 }
             }
             Some(true)
@@ -63,6 +69,8 @@ fn is_different(value: &Criterion, values: &[&Value]) -> Option<bool> {
                     if string_content == content {
                         return Some(false);
                     }
+                } else {
+                    return Some(false);
                 }
             }
             Some(true)
@@ -73,6 +81,8 @@ fn is_different(value: &Criterion, values: &[&Value]) -> Option<bool> {
                     if number_content.as_i64() == Some(*content) {
                         return Some(false);
                     }
+                } else {
+                    return Some(false);
                 }
             }
             Some(true)
@@ -83,6 +93,8 @@ fn is_different(value: &Criterion, values: &[&Value]) -> Option<bool> {
                     if number_content.as_f64() == Some(*content) {
                         return Some(false);
                     }
+                } else {
+                    return Some(false);
                 }
             }
             Some(true)
@@ -107,6 +119,8 @@ fn is_lower(value: &Criterion, values: &[&Value]) -> Option<bool> {
                     if string_content >= content {
                         return Some(false);
                     }
+                } else {
+                    return Some(false);
                 }
             }
             Some(true)
@@ -117,6 +131,8 @@ fn is_lower(value: &Criterion, values: &[&Value]) -> Option<bool> {
                     if number_content.as_f64() >= Some(*content as f64) {
                         return Some(false);
                     }
+                } else {
+                    return Some(false);
                 }
             }
             Some(true)
@@ -127,6 +143,8 @@ fn is_lower(value: &Criterion, values: &[&Value]) -> Option<bool> {
                     if number_content.as_f64() >= Some(*content) {
                         return Some(false);
                     }
+                } else {
+                    return Some(false);
                 }
             }
             Some(true)
@@ -143,6 +161,8 @@ fn is_greater(value: &Criterion, values: &[&Value]) -> Option<bool> {
                     if string_content <= content {
                         return Some(false);
                     }
+                } else {
+                    return Some(false);
                 }
             }
             Some(true)
@@ -153,6 +173,8 @@ fn is_greater(value: &Criterion, values: &[&Value]) -> Option<bool> {
                     if number_content.as_f64() <= Some(*content as f64) {
                         return Some(false);
                     }
+                } else {
+                    return Some(false);
                 }
             }
             Some(true)
@@ -163,6 +185,8 @@ fn is_greater(value: &Criterion, values: &[&Value]) -> Option<bool> {
                     if number_content.as_f64() <= Some(*content) {
                         return Some(false);
                     }
+                } else {
+                    return Some(false);
                 }
             }
             Some(true)
