@@ -21,8 +21,11 @@ slice_from = { "[" ~ number ~ ":]" }
 equal = { "==" }
 different = { "!=" }
 greater = { ">" }
+greater_or_equal = { ">=" }
 lower = { "<" }
-condition = { equal | different | greater | lower }
+lower_or_equal = { "<=" }
+condition = { equal | different | greater_or_equal | greater | lower_or_equal | lower }
+
 string = { (alpha | digit | special_charaters | " ")+ }
 literal = { "'" ~ string ~ "'" }
 array = { "[" ~ (" ")* ~ (float ~ ((",") ~ (" ")* ~ float)* | number ~ ((",") ~ (" ")* ~ number)* | literal ~ ((",") ~ (" ")* ~ literal)* ) ~ (" ")* ~ "]" }

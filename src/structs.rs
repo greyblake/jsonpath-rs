@@ -31,8 +31,12 @@ pub enum Criterion {
     Different,
     // >
     Greater,
+    // >=
+    GreaterOrEqual,
     // <
     Lower,
+    // <=
+    LowerOrEqual,
     // 'content'
     Literal(String),
     // 10
@@ -61,7 +65,9 @@ pub fn matches<'a>(stack: &mut StackItem, criterion: &Criterion, root: &StackIte
         Criterion::Equal => false,
         Criterion::Different => false,
         Criterion::Greater => false,
+        Criterion::GreaterOrEqual => false,
         Criterion::Lower => false,
+        Criterion::LowerOrEqual => false,
         Criterion::Literal(ref _content) => false,
         Criterion::Number(ref _value) => false,
         Criterion::Float(ref _value) => false,

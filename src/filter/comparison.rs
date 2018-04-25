@@ -2,11 +2,14 @@ use serde_json::Value;
 use structs::Criterion;
 
 pub fn filter(pattern: &Criterion, value: &Criterion, values: &[&Value]) -> Option<bool> {
+    println!("{:?}", pattern);
     match *pattern {
         Criterion::Equal => is_equal(value, values),
         Criterion::Different => is_different(value, values),
         Criterion::Lower => is_lower(value, values),
+        Criterion::LowerOrEqual => is_lower_or_equal(value, values),
         Criterion::Greater => is_greater(value, values),
+        Criterion::GreaterOrEqual => is_greater_or_equal(value, values),
         _ => None,
     }
 }
@@ -153,6 +156,49 @@ fn is_lower(value: &Criterion, values: &[&Value]) -> Option<bool> {
     }
 }
 
+fn is_lower_or_equal(value: &Criterion, values: &[&Value]) -> Option<bool> {
+    match *value {
+        Criterion::Literal(ref content) => {
+            for v in values.iter() {
+                if let Value::String(ref string_content) = **v {
+                    println!("{:?} < {:?}", string_content, content);
+                    if string_content > content {
+                        return Some(false);
+                    }
+                } else {
+                    return Some(false);
+                }
+            }
+            Some(true)
+        }
+        Criterion::Number(ref content) => {
+            for v in values.iter() {
+                if let Value::Number(ref number_content) = **v {
+                    if number_content.as_f64() > Some(*content as f64) {
+                        return Some(false);
+                    }
+                } else {
+                    return Some(false);
+                }
+            }
+            Some(true)
+        }
+        Criterion::Float(ref content) => {
+            for v in values.iter() {
+                if let Value::Number(ref number_content) = **v {
+                    if number_content.as_f64() > Some(*content) {
+                        return Some(false);
+                    }
+                } else {
+                    return Some(false);
+                }
+            }
+            Some(true)
+        }
+        _ => None,
+    }
+}
+
 fn is_greater(value: &Criterion, values: &[&Value]) -> Option<bool> {
     match *value {
         Criterion::Literal(ref content) => {
@@ -183,6 +229,49 @@ fn is_greater(value: &Criterion, values: &[&Value]) -> Option<bool> {
             for v in values.iter() {
                 if let Value::Number(ref number_content) = **v {
                     if number_content.as_f64() <= Some(*content) {
+                        return Some(false);
+                    }
+                } else {
+                    return Some(false);
+                }
+            }
+            Some(true)
+        }
+        _ => None,
+    }
+}
+
+fn is_greater_or_equal(value: &Criterion, values: &[&Value]) -> Option<bool> {
+    match *value {
+        Criterion::Literal(ref content) => {
+            for v in values.iter() {
+                if let Value::String(ref string_content) = **v {
+                    println!("{:?} < {:?}", string_content, content);
+                    if string_content < content {
+                        return Some(false);
+                    }
+                } else {
+                    return Some(false);
+                }
+            }
+            Some(true)
+        }
+        Criterion::Number(ref content) => {
+            for v in values.iter() {
+                if let Value::Number(ref number_content) = **v {
+                    if number_content.as_f64() < Some(*content as f64) {
+                        return Some(false);
+                    }
+                } else {
+                    return Some(false);
+                }
+            }
+            Some(true)
+        }
+        Criterion::Float(ref content) => {
+            for v in values.iter() {
+                if let Value::Number(ref number_content) = **v {
+                    if number_content.as_f64() < Some(*content) {
                         return Some(false);
                     }
                 } else {

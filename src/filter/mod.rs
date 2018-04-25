@@ -10,7 +10,7 @@ pub fn process_filter<'a>(stack: &mut StackItem, path: &[Criterion], root: &Stac
         Some(&Criterion::Element) => {
             let found_condition = path.iter().position(|x| {
                 x == &Criterion::Equal || x == &Criterion::Different || x == &Criterion::Greater
-                    || x == &Criterion::Lower
+                    || x == &Criterion::GreaterOrEqual || x == &Criterion::Lower || x == &Criterion::LowerOrEqual
             });
 
             let (sub_path, condition) = match found_condition {

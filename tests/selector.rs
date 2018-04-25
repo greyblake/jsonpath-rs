@@ -30,8 +30,14 @@ macro_rules! assert_jsonpath {
         let selector = Selector::new($path).unwrap();
         let selected_values: Vec<$type> = selector
             .find(&value)
-            .map(|x| x.$convert().unwrap())
+            .map(|x| {
+                println!("{:?}", x);
+                x.$convert()
+            })
+            .filter(|x| x.is_some())
+            .map(|x| x.unwrap())
             .collect();
+
         assert_eq!(selected_values, $expected);
     };
 }
@@ -131,6 +137,34 @@ fn test_filter_lower_greater_comparison() {
     );
     assert_jsonpath_str!(
         "$.store.books[?(@.price < 10)].title",
+        ["Sayings of the Century", "Moby Dick"]
+    );
+}
+
+#[test]
+fn test_filter_lower_greater_or_equal_comparison() {
+    assert_jsonpath_str!(
+        "$.store.books[?(@.title >= 'Sc')].author",
+        ["Evelyn Waugh", "J. R. R. Tolkien"]
+    );
+    assert_jsonpath_str!(
+        "$.store.books[?(@.title <= 'Sc')].author",
+        ["Nigel Rees", "Herman Melville"]
+    );
+    assert_jsonpath_str!(
+        "$.store.books[?(@.price >= 9.99)].title",
+        ["Sword of Honour", "The Lord of the Rings"]
+    );
+    assert_jsonpath_str!(
+        "$.store.books[?(@.price <= 9.99)].title",
+        ["Sayings of the Century", "Moby Dick"]
+    );
+    assert_jsonpath_str!(
+        "$.store.books[?(@.price >= 10)].title",
+        ["Sword of Honour", "The Lord of the Rings"]
+    );
+    assert_jsonpath_str!(
+        "$.store.books[?(@.price <= 10)].title",
         ["Sayings of the Century", "Moby Dick"]
     );
 }

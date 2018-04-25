@@ -31,8 +31,14 @@ fn parse_tokens(element: Pair<Rule>) -> Result<Vec<Criterion>> {
                 Rule::different => {
                     criteria.push(Criterion::Different);
                 }
+                Rule::greater_or_equal => {
+                    criteria.push(Criterion::GreaterOrEqual);
+                }
                 Rule::greater => {
                     criteria.push(Criterion::Greater);
+                }
+                Rule::lower_or_equal => {
+                    criteria.push(Criterion::LowerOrEqual);
                 }
                 Rule::lower => {
                     criteria.push(Criterion::Lower);
