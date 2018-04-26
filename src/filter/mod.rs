@@ -29,7 +29,7 @@ pub fn process_filter<'a>(stack: &mut StackItem, path: &[Criterion], root: &Stac
 
             match condition.len() {
                 0 => !found.is_empty(),
-                2 => match comparison::filter(&condition[0], &condition[1], &found, &root) {
+                2 => match comparison::filter(&condition[0], &condition[1], &found, root) {
                     Some(value) => value,
                     None => false,
                 },
@@ -54,7 +54,7 @@ pub fn process_filter<'a>(stack: &mut StackItem, path: &[Criterion], root: &Stac
 
             match condition.len() {
                 0 => !found.is_empty(),
-                2 => match comparison::filter(&condition[0], &condition[1], &found, &root) {
+                2 => match comparison::filter(&condition[0], &condition[1], &found, root) {
                     Some(value) => value,
                     None => false,
                 },
