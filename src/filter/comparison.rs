@@ -68,25 +68,24 @@ macro_rules! compare {
                 Some(false)
             }
             Criterion::SubExpression(ref expression) => {
-                let found: Vec<&Value> = Iter::new($root.item.value, &expression).collect();
+                validate_sub_expresion!($values, $root, $operator, expression)
+            }
+            _ => None,
+        }
+    )
+}
 
-                for item in &found {
-                    for value in $values.iter() {
-                        match (*value, *item) {
-                            (&Value::Number(ref value_content), &Value::Number(ref item_content)) => {
-                                match (value_content.as_f64(), item_content.as_f64()) {
-                                    (Some(value_number), Some(item_number)) => {
-                                        if value_number $operator item_number {
-                                            return Some(false);
-                                        }
-                                    }
-                                    _ => {
-                                        return Some(false);
-                                    }
-                                }
-                            }
-                            (&Value::String(ref value_content), &Value::String(ref item_content)) => {
-                                if value_content $operator item_content {
+macro_rules! validate_sub_expresion {
+    ($values:expr, $root:expr, $operator:tt, $expression:expr) => ({
+        let found: Vec<&Value> = Iter::new($root.item.value, &$expression).collect();
+
+        for item in &found {
+            for value in $values.iter() {
+                match (*value, *item) {
+                    (&Value::Number(ref value_content), &Value::Number(ref item_content)) => {
+                        match (value_content.as_f64(), item_content.as_f64()) {
+                            (Some(value_number), Some(item_number)) => {
+                                if value_number $operator item_number {
                                     return Some(false);
                                 }
                             }
@@ -95,19 +94,30 @@ macro_rules! compare {
                             }
                         }
                     }
+                    (&Value::String(ref value_content), &Value::String(ref item_content)) => {
+                        if value_content $operator item_content {
+                            return Some(false);
+                        }
+                    }
+                    _ => {
+                        return Some(false);
+                    }
                 }
-                Some(true)
             }
-            _ => None,
         }
-    )
+        Some(true)
+    })
 }
 
 fn is_equal<'a>(criterion: &Criterion, values: &[&Value], root: &StackItem<'a>) -> Option<bool> {
     compare!(criterion, values, root, !=, is_equal)
 }
 
-fn is_different<'a>(criterion: &Criterion, values: &[&Value], root: &StackItem<'a>) -> Option<bool> {
+fn is_different<'a>(
+    criterion: &Criterion,
+    values: &[&Value],
+    root: &StackItem<'a>,
+) -> Option<bool> {
     compare!(criterion, values, root, ==, is_different)
 }
 
