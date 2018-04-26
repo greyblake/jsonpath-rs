@@ -195,26 +195,16 @@ fn test_filter_with_absolute_condition() {
 fn test_filter_with_expression_on_right_side() {
     assert_jsonpath_str!(
         "$.store.books[?(@.price > $.store.books[?(@.title == 'Moby Dick')].price)].title",
-        [
-            "Sword of Honour",
-            "The Lord of the Rings",
-        ]
+        ["Sword of Honour", "The Lord of the Rings",]
     );
     assert_jsonpath_str!(
         "$.store.books[?(@.author > $.store.books[?(@.title == 'Moby Dick')].author)].title",
-        [
-            "Sayings of the Century",
-            "The Lord of the Rings"
-        ]
+        ["Sayings of the Century", "The Lord of the Rings"]
     );
 
     assert_jsonpath_str!(
         "$.store.books[?(@.price >= $.store.books[?(@.title == 'Moby Dick')].price)].title",
-        [
-            "Sword of Honour",
-            "Moby Dick",
-            "The Lord of the Rings",
-        ]
+        ["Sword of Honour", "Moby Dick", "The Lord of the Rings",]
     );
     assert_jsonpath_str!(
         "$.store.books[?(@.author >= $.store.books[?(@.title == 'Moby Dick')].author)].title",
@@ -227,43 +217,29 @@ fn test_filter_with_expression_on_right_side() {
 
     assert_jsonpath_str!(
         "$.store.books[?(@.price < $.store.books[?(@.title == 'Moby Dick')].price)].title",
-        [
-            "Sayings of the Century"
-        ]
+        ["Sayings of the Century"]
     );
     assert_jsonpath_str!(
         "$.store.books[?(@.author < $.store.books[?(@.title == 'Moby Dick')].author)].title",
-        [
-            "Sword of Honour"
-        ]
+        ["Sword of Honour"]
     );
 
     assert_jsonpath_str!(
         "$.store.books[?(@.price <= $.store.books[?(@.title == 'Moby Dick')].price)].title",
-        [
-            "Sayings of the Century",
-            "Moby Dick"
-        ]
+        ["Sayings of the Century", "Moby Dick"]
     );
     assert_jsonpath_str!(
         "$.store.books[?(@.author <= $.store.books[?(@.title == 'Moby Dick')].author)].title",
-        [
-            "Sword of Honour",
-            "Moby Dick"
-        ]
+        ["Sword of Honour", "Moby Dick"]
     );
 
     assert_jsonpath_str!(
         "$.store.books[?(@.price == $.store.books[?(@.title == 'Moby Dick')].price)].title",
-        [
-            "Moby Dick"
-        ]
+        ["Moby Dick"]
     );
     assert_jsonpath_str!(
         "$.store.books[?(@.author == $.store.books[?(@.title == 'Moby Dick')].author)].title",
-        [
-            "Moby Dick"
-        ]
+        ["Moby Dick"]
     );
 
     assert_jsonpath_str!(

@@ -103,7 +103,7 @@ pub fn matches<'a>(stack: &mut StackItem, criterion: &Criterion, root: &StackIte
         Criterion::SliceFrom(from) => match step {
             Step::Index(idx) => from <= idx,
             _ => false,
-        }
+        },
     }
 }
 

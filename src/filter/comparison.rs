@@ -2,7 +2,12 @@ use serde_json::Value;
 use structs::{Criterion, StackItem};
 use iter::Iter;
 
-pub fn filter<'a>(pattern: &Criterion, value: &Criterion, values: &[&Value], root: &StackItem<'a>) -> Option<bool> {
+pub fn filter<'a>(
+    pattern: &Criterion,
+    value: &Criterion,
+    values: &[&Value],
+    root: &StackItem<'a>,
+) -> Option<bool> {
     match *pattern {
         Criterion::Equal => is_equal(value, values, &root),
         Criterion::Different => is_different(value, values, &root),
@@ -72,7 +77,7 @@ fn is_equal<'a>(value: &Criterion, values: &[&Value], root: &StackItem<'a>) -> O
                                     if value_number != item_number {
                                         return Some(false);
                                     }
-                                },
+                                }
                                 _ => {
                                     return Some(false);
                                 }
@@ -153,7 +158,7 @@ fn is_different<'a>(value: &Criterion, values: &[&Value], root: &StackItem<'a>) 
                                     if value_number == item_number {
                                         return Some(false);
                                     }
-                                },
+                                }
                                 _ => {
                                     return Some(false);
                                 }
@@ -226,7 +231,7 @@ fn is_lower<'a>(value: &Criterion, values: &[&Value], root: &StackItem<'a>) -> O
                                     if value_number >= item_number {
                                         return Some(false);
                                     }
-                                },
+                                }
                                 _ => {
                                     return Some(false);
                                 }
@@ -249,7 +254,11 @@ fn is_lower<'a>(value: &Criterion, values: &[&Value], root: &StackItem<'a>) -> O
     }
 }
 
-fn is_lower_or_equal<'a>(value: &Criterion, values: &[&Value], root: &StackItem<'a>) -> Option<bool> {
+fn is_lower_or_equal<'a>(
+    value: &Criterion,
+    values: &[&Value],
+    root: &StackItem<'a>,
+) -> Option<bool> {
     match *value {
         Criterion::Literal(ref content) => {
             for v in values.iter() {
@@ -299,7 +308,7 @@ fn is_lower_or_equal<'a>(value: &Criterion, values: &[&Value], root: &StackItem<
                                     if value_number > item_number {
                                         return Some(false);
                                     }
-                                },
+                                }
                                 _ => {
                                     return Some(false);
                                 }
@@ -372,7 +381,7 @@ fn is_greater<'a>(criter: &Criterion, values: &[&Value], root: &StackItem<'a>) -
                                     if value_number <= item_number {
                                         return Some(false);
                                     }
-                                },
+                                }
                                 _ => {
                                     return Some(false);
                                 }
@@ -395,7 +404,11 @@ fn is_greater<'a>(criter: &Criterion, values: &[&Value], root: &StackItem<'a>) -
     }
 }
 
-fn is_greater_or_equal<'a>(criter: &Criterion, values: &[&Value], root: &StackItem<'a>) -> Option<bool> {
+fn is_greater_or_equal<'a>(
+    criter: &Criterion,
+    values: &[&Value],
+    root: &StackItem<'a>,
+) -> Option<bool> {
     match *criter {
         Criterion::Literal(ref content) => {
             for v in values.iter() {
@@ -445,7 +458,7 @@ fn is_greater_or_equal<'a>(criter: &Criterion, values: &[&Value], root: &StackIt
                                     if value_number < item_number {
                                         return Some(false);
                                     }
-                                },
+                                }
                                 _ => {
                                     return Some(false);
                                 }
