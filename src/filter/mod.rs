@@ -28,7 +28,7 @@ pub fn process_filter<'a>(stack: &mut StackItem, path: &[Criterion], root: &Stac
 
             match condition.len() {
                 0 => !found.is_empty(),
-                2 => match comparison::filter(&condition[0], &condition[1], &found) {
+                2 => match comparison::filter(&condition[0], &condition[1], &found, &root) {
                     Some(value) => value,
                     None => false,
                 },
@@ -49,12 +49,11 @@ pub fn process_filter<'a>(stack: &mut StackItem, path: &[Criterion], root: &Stac
                 None => (path.to_owned(), vec![]),
             };
 
-            let doc = root.item.value;
-            let found: Vec<&Value> = Iter::new(doc, &sub_path).collect();
+            let found: Vec<&Value> = Iter::new(root.item.value, &sub_path).collect();
 
             match condition.len() {
                 0 => !found.is_empty(),
-                2 => match comparison::filter(&condition[0], &condition[1], &found) {
+                2 => match comparison::filter(&condition[0], &condition[1], &found, &root) {
                     Some(value) => value,
                     None => false,
                 },

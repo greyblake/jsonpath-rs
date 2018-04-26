@@ -90,6 +90,10 @@ fn parse_tokens(element: Pair<Rule>) -> Result<Vec<Criterion>> {
                 let from: usize = iter.next().unwrap().as_str().parse()?;
                 criteria.push(Criterion::SliceFrom(from));
             }
+            Rule::sub_expression => {
+                let sub_expression = parse_tokens(token)?;
+                criteria.push(Criterion::SubExpression(sub_expression));
+            }
             rule => {
                 println!("Unable to reach rule: {:?}", rule);
                 unreachable!()

@@ -1,20 +1,20 @@
 use serde_json::Value;
-use structs::Criterion;
+use structs::{Criterion, StackItem};
+use iter::Iter;
 
-pub fn filter(pattern: &Criterion, value: &Criterion, values: &[&Value]) -> Option<bool> {
-    println!("{:?}", pattern);
+pub fn filter<'a>(pattern: &Criterion, value: &Criterion, values: &[&Value], root: &StackItem<'a>) -> Option<bool> {
     match *pattern {
-        Criterion::Equal => is_equal(value, values),
-        Criterion::Different => is_different(value, values),
-        Criterion::Lower => is_lower(value, values),
-        Criterion::LowerOrEqual => is_lower_or_equal(value, values),
-        Criterion::Greater => is_greater(value, values),
-        Criterion::GreaterOrEqual => is_greater_or_equal(value, values),
+        Criterion::Equal => is_equal(value, values, &root),
+        Criterion::Different => is_different(value, values, &root),
+        Criterion::Lower => is_lower(value, values, &root),
+        Criterion::LowerOrEqual => is_lower_or_equal(value, values, &root),
+        Criterion::Greater => is_greater(value, values, &root),
+        Criterion::GreaterOrEqual => is_greater_or_equal(value, values, &root),
         _ => None,
     }
 }
 
-fn is_equal(value: &Criterion, values: &[&Value]) -> Option<bool> {
+fn is_equal<'a>(value: &Criterion, values: &[&Value], root: &StackItem<'a>) -> Option<bool> {
     match *value {
         Criterion::Literal(ref content) => {
             for v in values.iter() {
@@ -54,17 +54,48 @@ fn is_equal(value: &Criterion, values: &[&Value]) -> Option<bool> {
         }
         Criterion::Array(ref content) => {
             for item in content {
-                if let Some(true) = is_equal(item, values) {
+                if let Some(true) = is_equal(item, values, &root) {
                     return Some(true);
                 }
             }
             Some(false)
         }
+        Criterion::SubExpression(ref expression) => {
+            let found: Vec<&Value> = Iter::new(root.item.value, &expression).collect();
+
+            for item in &found {
+                for value in values.iter() {
+                    match (*value, *item) {
+                        (&Value::Number(ref value_content), &Value::Number(ref item_content)) => {
+                            match (value_content.as_f64(), item_content.as_f64()) {
+                                (Some(value_number), Some(item_number)) => {
+                                    if value_number != item_number {
+                                        return Some(false);
+                                    }
+                                },
+                                _ => {
+                                    return Some(false);
+                                }
+                            }
+                        }
+                        (&Value::String(ref value_content), &Value::String(ref item_content)) => {
+                            if value_content != item_content {
+                                return Some(false);
+                            }
+                        }
+                        _ => {
+                            return Some(false);
+                        }
+                    }
+                }
+            }
+            Some(true)
+        }
         _ => None,
     }
 }
 
-fn is_different(value: &Criterion, values: &[&Value]) -> Option<bool> {
+fn is_different<'a>(value: &Criterion, values: &[&Value], root: &StackItem<'a>) -> Option<bool> {
     match *value {
         Criterion::Literal(ref content) => {
             for v in values.iter() {
@@ -104,17 +135,48 @@ fn is_different(value: &Criterion, values: &[&Value]) -> Option<bool> {
         }
         Criterion::Array(ref content) => {
             for item in content {
-                if let Some(true) = is_equal(item, values) {
+                if let Some(true) = is_equal(item, values, &root) {
                     return Some(true);
                 }
             }
             Some(false)
         }
+        Criterion::SubExpression(ref expression) => {
+            let found: Vec<&Value> = Iter::new(root.item.value, &expression).collect();
+
+            for item in &found {
+                for value in values.iter() {
+                    match (*value, *item) {
+                        (&Value::Number(ref value_content), &Value::Number(ref item_content)) => {
+                            match (value_content.as_f64(), item_content.as_f64()) {
+                                (Some(value_number), Some(item_number)) => {
+                                    if value_number == item_number {
+                                        return Some(false);
+                                    }
+                                },
+                                _ => {
+                                    return Some(false);
+                                }
+                            }
+                        }
+                        (&Value::String(ref value_content), &Value::String(ref item_content)) => {
+                            if value_content == item_content {
+                                return Some(false);
+                            }
+                        }
+                        _ => {
+                            return Some(false);
+                        }
+                    }
+                }
+            }
+            Some(true)
+        }
         _ => None,
     }
 }
 
-fn is_lower(value: &Criterion, values: &[&Value]) -> Option<bool> {
+fn is_lower<'a>(value: &Criterion, values: &[&Value], root: &StackItem<'a>) -> Option<bool> {
     match *value {
         Criterion::Literal(ref content) => {
             for v in values.iter() {
@@ -152,16 +214,46 @@ fn is_lower(value: &Criterion, values: &[&Value]) -> Option<bool> {
             }
             Some(true)
         }
+        Criterion::SubExpression(ref expression) => {
+            let found: Vec<&Value> = Iter::new(root.item.value, &expression).collect();
+
+            for item in &found {
+                for value in values.iter() {
+                    match (*value, *item) {
+                        (&Value::Number(ref value_content), &Value::Number(ref item_content)) => {
+                            match (value_content.as_f64(), item_content.as_f64()) {
+                                (Some(value_number), Some(item_number)) => {
+                                    if value_number >= item_number {
+                                        return Some(false);
+                                    }
+                                },
+                                _ => {
+                                    return Some(false);
+                                }
+                            }
+                        }
+                        (&Value::String(ref value_content), &Value::String(ref item_content)) => {
+                            if value_content >= item_content {
+                                return Some(false);
+                            }
+                        }
+                        _ => {
+                            return Some(false);
+                        }
+                    }
+                }
+            }
+            Some(true)
+        }
         _ => None,
     }
 }
 
-fn is_lower_or_equal(value: &Criterion, values: &[&Value]) -> Option<bool> {
+fn is_lower_or_equal<'a>(value: &Criterion, values: &[&Value], root: &StackItem<'a>) -> Option<bool> {
     match *value {
         Criterion::Literal(ref content) => {
             for v in values.iter() {
                 if let Value::String(ref string_content) = **v {
-                    println!("{:?} < {:?}", string_content, content);
                     if string_content > content {
                         return Some(false);
                     }
@@ -195,12 +287,43 @@ fn is_lower_or_equal(value: &Criterion, values: &[&Value]) -> Option<bool> {
             }
             Some(true)
         }
+        Criterion::SubExpression(ref expression) => {
+            let found: Vec<&Value> = Iter::new(root.item.value, &expression).collect();
+
+            for item in &found {
+                for value in values.iter() {
+                    match (*value, *item) {
+                        (&Value::Number(ref value_content), &Value::Number(ref item_content)) => {
+                            match (value_content.as_f64(), item_content.as_f64()) {
+                                (Some(value_number), Some(item_number)) => {
+                                    if value_number > item_number {
+                                        return Some(false);
+                                    }
+                                },
+                                _ => {
+                                    return Some(false);
+                                }
+                            }
+                        }
+                        (&Value::String(ref value_content), &Value::String(ref item_content)) => {
+                            if value_content > item_content {
+                                return Some(false);
+                            }
+                        }
+                        _ => {
+                            return Some(false);
+                        }
+                    }
+                }
+            }
+            Some(true)
+        }
         _ => None,
     }
 }
 
-fn is_greater(value: &Criterion, values: &[&Value]) -> Option<bool> {
-    match *value {
+fn is_greater<'a>(criter: &Criterion, values: &[&Value], root: &StackItem<'a>) -> Option<bool> {
+    match *criter {
         Criterion::Literal(ref content) => {
             for v in values.iter() {
                 if let Value::String(ref string_content) = **v {
@@ -237,16 +360,46 @@ fn is_greater(value: &Criterion, values: &[&Value]) -> Option<bool> {
             }
             Some(true)
         }
+        Criterion::SubExpression(ref expression) => {
+            let found: Vec<&Value> = Iter::new(root.item.value, &expression).collect();
+
+            for item in &found {
+                for value in values.iter() {
+                    match (*value, *item) {
+                        (&Value::Number(ref value_content), &Value::Number(ref item_content)) => {
+                            match (value_content.as_f64(), item_content.as_f64()) {
+                                (Some(value_number), Some(item_number)) => {
+                                    if value_number <= item_number {
+                                        return Some(false);
+                                    }
+                                },
+                                _ => {
+                                    return Some(false);
+                                }
+                            }
+                        }
+                        (&Value::String(ref value_content), &Value::String(ref item_content)) => {
+                            if value_content <= item_content {
+                                return Some(false);
+                            }
+                        }
+                        _ => {
+                            return Some(false);
+                        }
+                    }
+                }
+            }
+            Some(true)
+        }
         _ => None,
     }
 }
 
-fn is_greater_or_equal(value: &Criterion, values: &[&Value]) -> Option<bool> {
-    match *value {
+fn is_greater_or_equal<'a>(criter: &Criterion, values: &[&Value], root: &StackItem<'a>) -> Option<bool> {
+    match *criter {
         Criterion::Literal(ref content) => {
             for v in values.iter() {
                 if let Value::String(ref string_content) = **v {
-                    println!("{:?} < {:?}", string_content, content);
                     if string_content < content {
                         return Some(false);
                     }
@@ -276,6 +429,37 @@ fn is_greater_or_equal(value: &Criterion, values: &[&Value]) -> Option<bool> {
                     }
                 } else {
                     return Some(false);
+                }
+            }
+            Some(true)
+        }
+        Criterion::SubExpression(ref expression) => {
+            let found: Vec<&Value> = Iter::new(root.item.value, &expression).collect();
+
+            for item in &found {
+                for value in values.iter() {
+                    match (*value, *item) {
+                        (&Value::Number(ref value_content), &Value::Number(ref item_content)) => {
+                            match (value_content.as_f64(), item_content.as_f64()) {
+                                (Some(value_number), Some(item_number)) => {
+                                    if value_number < item_number {
+                                        return Some(false);
+                                    }
+                                },
+                                _ => {
+                                    return Some(false);
+                                }
+                            }
+                        }
+                        (&Value::String(ref value_content), &Value::String(ref item_content)) => {
+                            if value_content < item_content {
+                                return Some(false);
+                            }
+                        }
+                        _ => {
+                            return Some(false);
+                        }
+                    }
                 }
             }
             Some(true)

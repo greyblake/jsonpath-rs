@@ -30,6 +30,8 @@ string = { (alpha | digit | special_charaters | " ")+ }
 literal = { "'" ~ string ~ "'" }
 array = { "[" ~ (" ")* ~ (float ~ ((",") ~ (" ")* ~ float)* | number ~ ((",") ~ (" ")* ~ number)* | literal ~ ((",") ~ (" ")* ~ literal)* ) ~ (" ")* ~ "]" }
 
-filter = { "[?(" ~ (dollar | arobase) ~ (child | any_child | indexed_child | slice | slice_to | slice_from | filter)* ~ (" ")* ~ (condition) ~ (" ")* ~ ( float | number | literal | array) ~ ")]" }
+sub_expression = { dollar ~ (child | any_child | indexed_child | slice | slice_to | slice_from | filter)* }
+
+filter = { "[?(" ~ (dollar | arobase) ~ (child | any_child | indexed_child | slice | slice_to | slice_from | filter)* ~ (" ")* ~ (condition) ~ (" ")* ~ ( sub_expression | float | number | literal | array) ~ ")]" }
 
 expression = { dollar ~ (child | any_child | indexed_child | slice | slice_to | slice_from | filter)* ~ eoi }

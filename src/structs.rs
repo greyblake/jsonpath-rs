@@ -13,6 +13,8 @@ pub enum Criterion {
     NamedChild(String),
     // ?(path)
     Filter(Vec<Criterion>),
+    // path
+    SubExpression(Vec<Criterion>),
     // .*
     AnyChild,
     // [123]
@@ -72,6 +74,7 @@ pub fn matches<'a>(stack: &mut StackItem, criterion: &Criterion, root: &StackIte
         Criterion::Number(ref _value) => false,
         Criterion::Float(ref _value) => false,
         Criterion::Array(ref _value) => false,
+        Criterion::SubExpression(ref _expr) => false,
         Criterion::NamedChild(ref child_name) => match step {
             Step::Key(key) => child_name == key,
             _ => false,
@@ -100,7 +103,7 @@ pub fn matches<'a>(stack: &mut StackItem, criterion: &Criterion, root: &StackIte
         Criterion::SliceFrom(from) => match step {
             Step::Index(idx) => from <= idx,
             _ => false,
-        },
+        }
     }
 }
 
