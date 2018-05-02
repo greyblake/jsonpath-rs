@@ -192,6 +192,37 @@ fn test_filter_with_absolute_condition() {
 }
 
 #[test]
+fn test_filter_and_or() {
+    assert_jsonpath_str!(
+        "$.store.books[?(@.category == 'fiction') && ?(@.price < 10)].title",
+        ["Moby Dick"]
+    );
+
+    assert_jsonpath_str!(
+        "$.store.books[?(@.category == 'reference') || ?(@.price == 9)].title",
+        [
+            "Sayings of the Century",
+            "Moby Dick"
+        ]
+    );
+    assert_jsonpath_str!(
+        "$.store.books[?(@.category == 'reference') || ?(@.price == 9) || ?(@.author == 'Evelyn Waugh')].title",
+        [
+            "Sayings of the Century",
+            "Sword of Honour",
+            "Moby Dick"
+        ]
+    );
+    assert_jsonpath_str!(
+        "$.store.books[?(@.category == 'reference') || ?(@.category == 'fiction') && ?(@.price == 9)].title",
+        [
+            "Sayings of the Century",
+            "Moby Dick",
+        ]
+    );
+}
+
+#[test]
 fn test_filter_with_expression_on_right_side() {
     assert_jsonpath_str!(
         "$.store.books[?(@.price > $.store.books[?(@.title == 'Moby Dick')].price)].title",

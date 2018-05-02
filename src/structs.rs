@@ -45,6 +45,10 @@ pub enum Criterion {
     Number(i64),
     // 9.99
     Float(f64),
+    // &&
+    And,
+    // ||
+    Or,
 }
 
 // A step during traversing JSON tree
@@ -70,6 +74,8 @@ pub fn matches<'a>(stack: &mut StackItem, criterion: &Criterion, root: &StackIte
         Criterion::GreaterOrEqual => false,
         Criterion::Lower => false,
         Criterion::LowerOrEqual => false,
+        Criterion::And => false,
+        Criterion::Or => false,
         Criterion::Literal(ref _content) => false,
         Criterion::Number(ref _value) => false,
         Criterion::Float(ref _value) => false,

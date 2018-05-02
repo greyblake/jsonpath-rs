@@ -5,6 +5,61 @@ use iter::Iter;
 mod comparison;
 
 pub fn process_filter<'a>(stack: &mut StackItem, path: &[Criterion], root: &StackItem<'a>) -> bool {
+    let mut or_indexes = vec![];
+    let mut and_indexes = vec![];
+
+    for (index, criterion) in path.iter().enumerate() {
+        if let &Criterion::Or = criterion {
+            or_indexes.push(index);
+        }
+        if let &Criterion::And = criterion {
+            and_indexes.push(index);
+        }
+    }
+
+    for (index, i) in or_indexes.iter().enumerate() {
+        let (left, right) = path.split_at(*i);
+
+        if index != or_indexes.len() - 1 {
+            if process_filter(stack, left, root) {
+                return true
+            }
+        } else {
+            let mut right_vec = right.to_vec();
+            right_vec.remove(0);
+
+            if process_filter(stack, left, root) ||
+               process_filter(stack, &right_vec, root) {
+                return true
+            }
+        }
+    }
+    
+    if or_indexes.is_empty() && !and_indexes.is_empty(){
+        for (index, i) in and_indexes.iter().enumerate() {
+            let (left, right) = path.split_at(*i);
+
+            if index != and_indexes.len() - 1 {
+                if !process_filter(stack, left, root) {
+                    return false
+                }
+            } else {
+                let mut right_vec = right.to_vec();
+                right_vec.remove(0);
+
+                if !process_filter(stack, left, root) ||
+                   !process_filter(stack, &right_vec, root) {
+                    return false
+                }
+            }
+        }
+        return true;
+    }
+
+    if !(or_indexes.is_empty() && and_indexes.is_empty()) {
+        return false;
+    }
+
     let mut iterator = path.iter();
     match iterator.next() {
         Some(&Criterion::Element) => {

@@ -94,6 +94,12 @@ fn parse_tokens(element: Pair<Rule>) -> Result<Vec<Criterion>> {
                 let sub_expression = parse_tokens(token)?;
                 criteria.push(Criterion::SubExpression(sub_expression));
             }
+            Rule::and => {
+                criteria.push(Criterion::And);
+            }
+            Rule::or => {
+                criteria.push(Criterion::Or);
+            }
             rule => {
                 println!("Unable to reach rule: {:?}", rule);
                 unreachable!()
