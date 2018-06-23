@@ -9,11 +9,10 @@ pub fn process_filter<'a>(stack: &mut StackItem, path: &[Criterion], root: &Stac
     let mut and_indexes = vec![];
 
     for (index, criterion) in path.iter().enumerate() {
-        if let &Criterion::Or = criterion {
-            or_indexes.push(index);
-        }
-        if let &Criterion::And = criterion {
-            and_indexes.push(index);
+        match criterion {
+            Criterion::Or => or_indexes.push(index),
+            Criterion::And => and_indexes.push(index),
+            _ => { }
         }
     }
 
