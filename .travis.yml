@@ -3,6 +3,8 @@ rust:
   - 1.23.0
   - 1.24.0
   - 1.25.0
+  - 1.26.0
+  - 1.27.0
   - stable
   - beta
   - nightly
@@ -11,15 +13,15 @@ matrix:
     - rust: nightly
   include:
     # Rustfmt
-    - env: RUSTFMT_VERSION="0.4.1"
-      rust: nightly-2018-04-01
+    - env: RUSTFMT_VERSION="0.8.2"
+      rust: nightly-2018-06-23
       install:
         - rustup component add rustfmt-preview
         - cargo install rustfmt-nightly --force --version $RUSTFMT_VERSION || echo "rustfmt already installed"
       before_script:
         - cargo-fmt fmt -- --version
       script:
-        - cargo fmt -- --write-mode=diff
+        - cargo fmt -- --check
 
     # Clippy
     - env: CLIPPY_VERSION="0.0.191"
