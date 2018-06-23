@@ -2,8 +2,8 @@ use pest::iterators::Pair;
 use pest::Parser;
 
 use errors::*;
-use structs::Criterion;
 use std::error::Error as StdError;
+use structs::Criterion;
 
 #[derive(Parser)]
 #[grammar = "parser/grammar.pest"]

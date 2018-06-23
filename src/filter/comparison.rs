@@ -111,7 +111,7 @@ macro_rules! validate_sub_expresion {
                     (&Value::String(ref value_content), &Value::Array(ref items)) => {
                         let mut returned = false;
                         for item in items {
-                            if let &Value::String(ref item_content) = item {
+                            if let Value::String(ref item_content) = *item {
                                 if !(value_content $operator item_content) {
                                     returned = true;
                                 }

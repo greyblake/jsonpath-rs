@@ -1,9 +1,9 @@
 use serde_json::value::Value;
 
 use errors::*;
+use iter::Iter;
 use parser::parse;
 use structs::Criterion;
-use iter::Iter;
 
 pub struct Selector {
     criteria: Vec<Criterion>,
