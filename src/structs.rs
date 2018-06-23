@@ -7,46 +7,64 @@ use std::slice::Iter;
 pub enum Criterion {
     // $
     Root,
+
     // @
     Element,
+
     // .name
     NamedChild(String),
+
     // ?(path)
     Filter(Vec<Criterion>),
+
     // path
     SubExpression(Vec<Criterion>),
+
     // .*
     AnyChild,
+
     // [123]
     IndexedChild(usize),
+
     // [10:20]
     Slice(::std::ops::Range<usize>),
+
     // [:7]
     SliceTo(::std::ops::RangeTo<usize>),
+
     // [4:]
     SliceFrom(usize),
+
     // [values]
     Array(Vec<Criterion>),
+
     // ==
     Equal,
+
     // !=
     Different,
+
     // >
     Greater,
+
     // >=
     GreaterOrEqual,
+
     // <
     Lower,
+
     // <=
     LowerOrEqual,
+
     // 'content'
     Literal(String),
-    // 10
-    Number(i64),
+
     // 9.99
     Float(f64),
+
     // &&
     And,
+
     // ||
     Or,
 }
@@ -77,7 +95,6 @@ pub fn matches<'a>(stack: &mut StackItem, criterion: &Criterion, root: &StackIte
         Criterion::And => false,
         Criterion::Or => false,
         Criterion::Literal(ref _content) => false,
-        Criterion::Number(ref _value) => false,
         Criterion::Float(ref _value) => false,
         Criterion::Array(ref _value) => false,
         Criterion::SubExpression(ref _expr) => false,

@@ -37,18 +37,6 @@ macro_rules! compare {
                 Some(true)
             }
 
-            Criterion::Number(ref content) => {
-                for v in $values.iter() {
-                    if let Value::Number(ref number_content) = **v {
-                        if number_content.as_f64() $operator Some(*content as f64) {
-                            return Some(false);
-                        }
-                    } else {
-                        return Some(false);
-                    }
-                }
-                Some(true)
-            }
             Criterion::Float(ref content) => {
                 for v in $values.iter() {
                     if let Value::Number(ref number_content) = **v {
