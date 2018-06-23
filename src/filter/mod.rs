@@ -12,7 +12,7 @@ pub fn process_filter<'a>(stack: &mut StackItem, path: &[Criterion], root: &Stac
         match criterion {
             Criterion::Or => or_indexes.push(index),
             Criterion::And => and_indexes.push(index),
-            _ => { }
+            _ => {}
         }
     }
 
