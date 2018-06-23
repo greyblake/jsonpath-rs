@@ -23,7 +23,7 @@ fn parse_tokens(element: Pair<Rule>) -> Result<Vec<Criterion>> {
     for token in element.into_inner() {
         match token.as_rule() {
             Rule::dollar => criteria.push(Criterion::Root),
-            Rule::arobase => criteria.push(Criterion::Element),
+            Rule::at => criteria.push(Criterion::Element),
             Rule::condition => match token.into_inner().next().unwrap().as_rule() {
                 Rule::equal => {
                     criteria.push(Criterion::Equal);
@@ -49,11 +49,7 @@ fn parse_tokens(element: Pair<Rule>) -> Result<Vec<Criterion>> {
                 let literal = token.into_inner().next().unwrap().as_str().to_owned();
                 criteria.push(Criterion::Literal(literal))
             }
-            Rule::number => {
-                let value = token.as_str().parse::<i64>().unwrap();
-                criteria.push(Criterion::Number(value))
-            }
-            Rule::float => {
+            Rule::number | Rule::float => {
                 let value = token.as_str().parse::<f64>().unwrap();
                 criteria.push(Criterion::Float(value))
             }
