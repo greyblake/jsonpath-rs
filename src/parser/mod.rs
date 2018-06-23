@@ -23,7 +23,7 @@ fn parse_tokens(element: Pair<Rule>) -> Result<Vec<Criterion>> {
     for token in element.into_inner() {
         match token.as_rule() {
             Rule::dollar => criteria.push(Criterion::Root),
-            Rule::arobase => criteria.push(Criterion::Element),
+            Rule::at => criteria.push(Criterion::Element),
             Rule::condition => match token.into_inner().next().unwrap().as_rule() {
                 Rule::equal => {
                     criteria.push(Criterion::Equal);

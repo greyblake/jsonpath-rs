@@ -1,5 +1,5 @@
 dollar = { "$" }
-arobase = { "@" }
+at = { "@" }
 asterisk = _{ "*" }
 dot =  _{ "." }
 double_dot =  _{ ".." }
@@ -48,7 +48,7 @@ or = { "||" }
 filter = {
     "[" ~
         "?(" ~
-            (dollar | arobase) ~
+            (dollar | at) ~
             (child | any_child | indexed_child | slice | slice_to | slice_from | filter)* ~
             (" ")* ~
             (condition) ~
@@ -60,7 +60,7 @@ filter = {
             (and | or) ~
             (" ")* ~
             "?(" ~
-                (dollar | arobase) ~
+                (dollar | at) ~
                 (child | any_child | indexed_child | slice | slice_to | slice_from | filter)* ~
                 (" ")* ~
                 (condition) ~
