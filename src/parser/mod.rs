@@ -31,8 +31,14 @@ fn parse_tokens(element: Pair<Rule>) -> Result<Vec<Criterion>> {
                 Rule::different => {
                     criteria.push(Criterion::Different);
                 }
+                Rule::greater_or_equal => {
+                    criteria.push(Criterion::GreaterOrEqual);
+                }
                 Rule::greater => {
                     criteria.push(Criterion::Greater);
+                }
+                Rule::lower_or_equal => {
+                    criteria.push(Criterion::LowerOrEqual);
                 }
                 Rule::lower => {
                     criteria.push(Criterion::Lower);
@@ -54,6 +60,10 @@ fn parse_tokens(element: Pair<Rule>) -> Result<Vec<Criterion>> {
             Rule::filter => {
                 let filter_criteria = parse_tokens(token)?;
                 criteria.push(Criterion::Filter(filter_criteria))
+            }
+            Rule::array => {
+                let array_criteria = parse_tokens(token)?;
+                criteria.push(Criterion::Array(array_criteria))
             }
             Rule::child => {
                 let ident = token.into_inner().next().unwrap().as_str().to_owned();
@@ -80,8 +90,18 @@ fn parse_tokens(element: Pair<Rule>) -> Result<Vec<Criterion>> {
                 let from: usize = iter.next().unwrap().as_str().parse()?;
                 criteria.push(Criterion::SliceFrom(from));
             }
-            lol => {
-                println!("{:?}", lol);
+            Rule::sub_expression => {
+                let sub_expression = parse_tokens(token)?;
+                criteria.push(Criterion::SubExpression(sub_expression));
+            }
+            Rule::and => {
+                criteria.push(Criterion::And);
+            }
+            Rule::or => {
+                criteria.push(Criterion::Or);
+            }
+            rule => {
+                println!("Unable to reach rule: {:?}", rule);
                 unreachable!()
             }
         }

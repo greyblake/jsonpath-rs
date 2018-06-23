@@ -13,6 +13,8 @@ pub enum Criterion {
     NamedChild(String),
     // ?(path)
     Filter(Vec<Criterion>),
+    // path
+    SubExpression(Vec<Criterion>),
     // .*
     AnyChild,
     // [123]
@@ -23,20 +25,30 @@ pub enum Criterion {
     SliceTo(::std::ops::RangeTo<usize>),
     // [4:]
     SliceFrom(usize),
+    // [values]
+    Array(Vec<Criterion>),
     // ==
     Equal,
     // !=
     Different,
     // >
     Greater,
+    // >=
+    GreaterOrEqual,
     // <
     Lower,
+    // <=
+    LowerOrEqual,
     // 'content'
     Literal(String),
     // 10
     Number(i64),
     // 9.99
     Float(f64),
+    // &&
+    And,
+    // ||
+    Or,
 }
 
 // A step during traversing JSON tree
@@ -59,15 +71,24 @@ pub fn matches<'a>(stack: &mut StackItem, criterion: &Criterion, root: &StackIte
         Criterion::Equal => false,
         Criterion::Different => false,
         Criterion::Greater => false,
+        Criterion::GreaterOrEqual => false,
         Criterion::Lower => false,
+        Criterion::LowerOrEqual => false,
+        Criterion::And => false,
+        Criterion::Or => false,
         Criterion::Literal(ref _content) => false,
         Criterion::Number(ref _value) => false,
         Criterion::Float(ref _value) => false,
+        Criterion::Array(ref _value) => false,
+        Criterion::SubExpression(ref _expr) => false,
         Criterion::NamedChild(ref child_name) => match step {
             Step::Key(key) => child_name == key,
             _ => false,
         },
-        Criterion::Filter(ref path) => filter::process_filter(stack, path, root),
+        Criterion::Filter(ref path) => {
+            let mut filter_stack = stack.clone();
+            filter::process_filter(&mut filter_stack, path, root)
+        }
         Criterion::AnyChild => match step {
             Step::Key(_) => true,
             Step::Index(_) => true,
@@ -137,6 +158,13 @@ impl<'a> Item<'a> {
     }
 }
 
+impl<'a> Clone for Item<'a> {
+    fn clone(&self) -> Item<'a> {
+        Item::new(self.value)
+    }
+}
+
+#[derive(Clone)]
 pub struct StackItem<'a> {
     pub item: Item<'a>,
     pub step: Step<'a>,

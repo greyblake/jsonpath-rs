@@ -51,10 +51,10 @@
 //! }
 //!
 //! ```
-extern crate serde;
-extern crate serde_json;
 #[macro_use]
 extern crate error_chain;
+extern crate serde;
+extern crate serde_json;
 
 extern crate pest;
 #[macro_use]

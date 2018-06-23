@@ -30,8 +30,14 @@ macro_rules! assert_jsonpath {
         let selector = Selector::new($path).unwrap();
         let selected_values: Vec<$type> = selector
             .find(&value)
-            .map(|x| x.$convert().unwrap())
+            .map(|x| {
+                // println!("{:?}", x);
+                x.$convert()
+            })
+            .filter(|x| x.is_some())
+            .map(|x| x.unwrap())
             .collect();
+
         assert_eq!(selected_values, $expected);
     };
 }
@@ -48,17 +54,17 @@ fn test_index() {
 
 #[test]
 fn test_slice() {
-    assert_jsonpath_f64!("$.store.books[1:2].price", [12.99, 8.99]);
+    assert_jsonpath_f64!("$.store.books[1:2].price", [12.99, 9.0]);
 }
 
 #[test]
 fn test_slice_to() {
-    assert_jsonpath_f64!("$.store.books[:3].price", [8.95, 12.99, 8.99]);
+    assert_jsonpath_f64!("$.store.books[:3].price", [8.95, 12.99, 9.0]);
 }
 
 #[test]
 fn test_slice_from() {
-    assert_jsonpath_f64!("$.store.books[1:].price", [12.99, 8.99, 22.99]);
+    assert_jsonpath_f64!("$.store.books[1:].price", [12.99, 9.0, 22.99]);
 }
 
 #[test]
@@ -68,10 +74,55 @@ fn test_filter() {
         "$.store.books[?(@.category == 'fiction')].title",
         ["Sword of Honour", "Moby Dick", "The Lord of the Rings"]
     );
+    assert_jsonpath_str!(
+        "$.store.books[?(@.price == 8.95)].title",
+        ["Sayings of the Century"]
+    );
+    assert_jsonpath_str!(
+        "$.store.books[?(@.price != 8.95)].title",
+        ["Sword of Honour", "Moby Dick", "The Lord of the Rings"]
+    );
+    assert_jsonpath_str!("$.store.books[?(@.price == 9)].title", ["Moby Dick"]);
+    assert_jsonpath_str!(
+        "$.store.books[?(@.price != 9)].title",
+        [
+            "Sayings of the Century",
+            "Sword of Honour",
+            "The Lord of the Rings"
+        ]
+    );
 }
 
 #[test]
-fn test_filter_number_comparison() {
+fn test_filter_array_string_conditions() {
+    assert_jsonpath_f64!(
+        "$.store.books[?(@.author == ['Evelyn Waugh' ])].price",
+        [12.99]
+    );
+    assert_jsonpath_f64!(
+        "$.store.books[?(@.author == ['Evelyn Waugh', 'Nigel Rees'])].price",
+        [8.95, 12.99]
+    );
+    assert_jsonpath_str!(
+        "$.store.books[?(@.author == ['Evelyn Waugh'])].title",
+        ["Sword of Honour"]
+    );
+    assert_jsonpath_str!(
+        "$.store.books[?(@.author == ['Evelyn Waugh', 'Nigel Rees'])].title",
+        ["Sayings of the Century", "Sword of Honour"]
+    );
+}
+
+#[test]
+fn test_filter_lower_greater_comparison() {
+    assert_jsonpath_str!(
+        "$.store.books[?(@.title > 'Sc')].author",
+        ["Evelyn Waugh", "J. R. R. Tolkien"]
+    );
+    assert_jsonpath_str!(
+        "$.store.books[?(@.title < 'Sc')].author",
+        ["Nigel Rees", "Herman Melville"]
+    );
     assert_jsonpath_str!(
         "$.store.books[?(@.price > 9.99)].title",
         ["Sword of Honour", "The Lord of the Rings"]
@@ -86,6 +137,34 @@ fn test_filter_number_comparison() {
     );
     assert_jsonpath_str!(
         "$.store.books[?(@.price < 10)].title",
+        ["Sayings of the Century", "Moby Dick"]
+    );
+}
+
+#[test]
+fn test_filter_lower_greater_or_equal_comparison() {
+    assert_jsonpath_str!(
+        "$.store.books[?(@.title >= 'Sc')].author",
+        ["Evelyn Waugh", "J. R. R. Tolkien"]
+    );
+    assert_jsonpath_str!(
+        "$.store.books[?(@.title <= 'Sc')].author",
+        ["Nigel Rees", "Herman Melville"]
+    );
+    assert_jsonpath_str!(
+        "$.store.books[?(@.price >= 9.99)].title",
+        ["Sword of Honour", "The Lord of the Rings"]
+    );
+    assert_jsonpath_str!(
+        "$.store.books[?(@.price <= 9.99)].title",
+        ["Sayings of the Century", "Moby Dick"]
+    );
+    assert_jsonpath_str!(
+        "$.store.books[?(@.price >= 10)].title",
+        ["Sword of Honour", "The Lord of the Rings"]
+    );
+    assert_jsonpath_str!(
+        "$.store.books[?(@.price <= 10)].title",
         ["Sayings of the Century", "Moby Dick"]
     );
 }
@@ -108,6 +187,106 @@ fn test_filter_with_absolute_condition() {
             "Sword of Honour",
             "Moby Dick",
             "The Lord of the Rings",
+        ]
+    );
+}
+
+#[test]
+fn test_filter_and_or() {
+    assert_jsonpath_str!(
+        "$.store.books[?(@.category == 'fiction') && ?(@.price < 10)].title",
+        ["Moby Dick"]
+    );
+
+    assert_jsonpath_str!(
+        "$.store.books[?(@.category == 'reference') || ?(@.price == 9)].title",
+        [
+            "Sayings of the Century",
+            "Moby Dick"
+        ]
+    );
+    assert_jsonpath_str!(
+        "$.store.books[?(@.category == 'reference') || ?(@.price == 9) || ?(@.author == 'Evelyn Waugh')].title",
+        [
+            "Sayings of the Century",
+            "Sword of Honour",
+            "Moby Dick"
+        ]
+    );
+    assert_jsonpath_str!(
+        "$.store.books[?(@.category == 'reference') || ?(@.category == 'fiction') && ?(@.price == 9)].title",
+        [
+            "Sayings of the Century",
+            "Moby Dick",
+        ]
+    );
+}
+
+#[test]
+fn test_filter_with_expression_on_right_side() {
+    assert_jsonpath_str!(
+        "$.store.books[?(@.price > $.store.books[?(@.title == 'Moby Dick')].price)].title",
+        ["Sword of Honour", "The Lord of the Rings",]
+    );
+    assert_jsonpath_str!(
+        "$.store.books[?(@.author > $.store.books[?(@.title == 'Moby Dick')].author)].title",
+        ["Sayings of the Century", "The Lord of the Rings"]
+    );
+
+    assert_jsonpath_str!(
+        "$.store.books[?(@.price >= $.store.books[?(@.title == 'Moby Dick')].price)].title",
+        ["Sword of Honour", "Moby Dick", "The Lord of the Rings",]
+    );
+    assert_jsonpath_str!(
+        "$.store.books[?(@.author >= $.store.books[?(@.title == 'Moby Dick')].author)].title",
+        [
+            "Sayings of the Century",
+            "Moby Dick",
+            "The Lord of the Rings"
+        ]
+    );
+
+    assert_jsonpath_str!(
+        "$.store.books[?(@.price < $.store.books[?(@.title == 'Moby Dick')].price)].title",
+        ["Sayings of the Century"]
+    );
+    assert_jsonpath_str!(
+        "$.store.books[?(@.author < $.store.books[?(@.title == 'Moby Dick')].author)].title",
+        ["Sword of Honour"]
+    );
+
+    assert_jsonpath_str!(
+        "$.store.books[?(@.price <= $.store.books[?(@.title == 'Moby Dick')].price)].title",
+        ["Sayings of the Century", "Moby Dick"]
+    );
+    assert_jsonpath_str!(
+        "$.store.books[?(@.author <= $.store.books[?(@.title == 'Moby Dick')].author)].title",
+        ["Sword of Honour", "Moby Dick"]
+    );
+
+    assert_jsonpath_str!(
+        "$.store.books[?(@.price == $.store.books[?(@.title == 'Moby Dick')].price)].title",
+        ["Moby Dick"]
+    );
+    assert_jsonpath_str!(
+        "$.store.books[?(@.author == $.store.books[?(@.title == 'Moby Dick')].author)].title",
+        ["Moby Dick"]
+    );
+
+    assert_jsonpath_str!(
+        "$.store.books[?(@.price != $.store.books[?(@.title == 'Moby Dick')].price)].title",
+        [
+            "Sayings of the Century",
+            "Sword of Honour",
+            "The Lord of the Rings"
+        ]
+    );
+    assert_jsonpath_str!(
+        "$.store.books[?(@.author != $.store.books[?(@.title == 'Moby Dick')].author)].title",
+        [
+            "Sayings of the Century",
+            "Sword of Honour",
+            "The Lord of the Rings"
         ]
     );
 }
