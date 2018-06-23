@@ -24,10 +24,10 @@ matrix:
         - cargo fmt -- --check
 
     # Clippy
-    - env: CLIPPY_VERSION="0.0.191"
-      rust: nightly-2018-04-01
+    - env: CLIPPY_VERSION="0.0.205"
+      rust: nightly-2018-05-26
       install:
-      - travis_wait cargo install clippy --version $CLIPPY_VERSION || echo "clippy already installed"
+      - travis_wait cargo install clippy --version $CLIPPY_VERSION --force
       script:
         # Fail if clippy output contains "error:" or "warning:"
         - cargo clippy 2>&1 | tee ./clippy.out && ! grep -qe  "error:\|warning:" ./clippy.out
