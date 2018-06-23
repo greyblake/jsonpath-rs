@@ -71,7 +71,7 @@ fn main() {
   * [x] operator `!=`
   * [x] operator `>`
   * [x] operator `<`
-  * [x] operator `>=`  
+  * [x] operator `>=`
   * [x] operator `<=`
   * [ ] operator `=~`
   * [x] filter comparison with expression on the right side `[?(<exporession> <operator> <expression>)]`
@@ -87,7 +87,7 @@ fn main() {
 
 ## Supported Rust versions
 
-Jsonpath requires rust version 1.23 or higher.
+Jsonpath requires rust version 1.26 or higher.
 
 ## License
 
