@@ -1,6 +1,6 @@
+use iter::Iter;
 use serde_json::Value;
 use structs::{Criterion, StackItem};
-use iter::Iter;
 
 mod comparison;
 
@@ -22,34 +22,32 @@ pub fn process_filter<'a>(stack: &mut StackItem, path: &[Criterion], root: &Stac
 
         if index != or_indexes.len() - 1 {
             if process_filter(stack, left, root) {
-                return true
+                return true;
             }
         } else {
             let mut right_vec = right.to_vec();
             right_vec.remove(0);
 
-            if process_filter(stack, left, root) ||
-               process_filter(stack, &right_vec, root) {
-                return true
+            if process_filter(stack, left, root) || process_filter(stack, &right_vec, root) {
+                return true;
             }
         }
     }
-    
-    if or_indexes.is_empty() && !and_indexes.is_empty(){
+
+    if or_indexes.is_empty() && !and_indexes.is_empty() {
         for (index, i) in and_indexes.iter().enumerate() {
             let (left, right) = path.split_at(*i);
 
             if index != and_indexes.len() - 1 {
                 if !process_filter(stack, left, root) {
-                    return false
+                    return false;
                 }
             } else {
                 let mut right_vec = right.to_vec();
                 right_vec.remove(0);
 
-                if !process_filter(stack, left, root) ||
-                   !process_filter(stack, &right_vec, root) {
-                    return false
+                if !process_filter(stack, left, root) || !process_filter(stack, &right_vec, root) {
+                    return false;
                 }
             }
         }
@@ -64,8 +62,11 @@ pub fn process_filter<'a>(stack: &mut StackItem, path: &[Criterion], root: &Stac
     match iterator.next() {
         Some(&Criterion::Element) => {
             let found_condition = path.iter().position(|x| {
-                x == &Criterion::Equal || x == &Criterion::Different || x == &Criterion::Greater
-                    || x == &Criterion::GreaterOrEqual || x == &Criterion::Lower
+                x == &Criterion::Equal
+                    || x == &Criterion::Different
+                    || x == &Criterion::Greater
+                    || x == &Criterion::GreaterOrEqual
+                    || x == &Criterion::Lower
                     || x == &Criterion::LowerOrEqual
             });
 
@@ -93,7 +94,9 @@ pub fn process_filter<'a>(stack: &mut StackItem, path: &[Criterion], root: &Stac
         }
         Some(&Criterion::Root) => {
             let found = path.iter().position(|x| {
-                x == &Criterion::Equal || x == &Criterion::Different || x == &Criterion::Greater
+                x == &Criterion::Equal
+                    || x == &Criterion::Different
+                    || x == &Criterion::Greater
                     || x == &Criterion::Lower
             });
 

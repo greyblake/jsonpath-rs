@@ -7,7 +7,7 @@ use std::fs::File;
 use std::io::Read;
 
 macro_rules! assert_jsonpath_f64 {
-    ($path: expr, $expected: expr) => {
+    ($path:expr, $expected:expr) => {
         let mut data_struct = String::new();
         let mut data_file = File::open("tests/data.json").unwrap();
         let _ = data_file.read_to_string(&mut data_struct).unwrap();
@@ -16,7 +16,7 @@ macro_rules! assert_jsonpath_f64 {
 }
 
 macro_rules! assert_jsonpath_str {
-    ($path: expr, $expected: expr) => {
+    ($path:expr, $expected:expr) => {
         let mut data_struct = String::new();
         let mut data_file = File::open("tests/data.json").unwrap();
         let _ = data_file.read_to_string(&mut data_struct).unwrap();
@@ -25,7 +25,7 @@ macro_rules! assert_jsonpath_str {
 }
 
 macro_rules! assert_jsonpath {
-    ($json: expr, $path: expr, $type: ty, $convert: ident, $expected: expr) => {
+    ($json:expr, $path:expr, $type:ty, $convert:ident, $expected:expr) => {
         let value: Value = serde_json::from_str($json).unwrap();
         let selector = Selector::new($path).unwrap();
         let selected_values: Vec<$type> = selector
@@ -200,10 +200,7 @@ fn test_filter_and_or() {
 
     assert_jsonpath_str!(
         "$.store.books[?(@.category == 'reference') || ?(@.price == 9)].title",
-        [
-            "Sayings of the Century",
-            "Moby Dick"
-        ]
+        ["Sayings of the Century", "Moby Dick"]
     );
     assert_jsonpath_str!(
         "$.store.books[?(@.category == 'reference') || ?(@.price == 9) || ?(@.author == 'Evelyn Waugh')].title",

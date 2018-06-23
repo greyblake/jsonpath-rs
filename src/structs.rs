@@ -1,7 +1,7 @@
 use filter;
 use serde_json::Value;
-use std::slice::Iter;
 use std::iter::Enumerate;
+use std::slice::Iter;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Criterion {
