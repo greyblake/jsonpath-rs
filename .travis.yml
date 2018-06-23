@@ -30,7 +30,8 @@ matrix:
       - travis_wait cargo install clippy --version $CLIPPY_VERSION --force
       script:
         # Fail if clippy output contains "error:" or "warning:"
-        - cargo clippy 2>&1 | tee ./clippy.out && ! grep -qe  "error:\|warning:" ./clippy.out
+        # Ignore unused_doc_comment warnings that comes from error-chain: https://github.com/rust-lang-nursery/error-chain/issues/245
+        - cargo clippy 2>&1 | grep -v unused_doc_comment | tee ./clippy.out && ! grep -qe  "error:\|warning:" ./clippy.out
 
     # Test coverage (with Tarpaulin)
     - env: TARPAULIN_VERSION="0.6.2"
