@@ -28,13 +28,51 @@ condition = { equal | different | greater_or_equal | greater | lower_or_equal | 
 
 string = { (alpha | digit | special_charaters | " ")+ }
 literal = { "'" ~ string ~ "'" }
-array = { "[" ~ (" ")* ~ (float ~ ((",") ~ (" ")* ~ float)* | number ~ ((",") ~ (" ")* ~ number)* | literal ~ ((",") ~ (" ")* ~ literal)* ) ~ (" ")* ~ "]" }
+array = {
+    "[" ~
+        (" ")* ~
+            (
+                float ~ ((",") ~ (" ")* ~ float)* |
+                number ~ ((",") ~ (" ")* ~ number)* |
+                literal ~ ((",") ~ (" ")* ~ literal)*
+            ) ~
+        (" ")* ~
+    "]"
+}
 
 sub_expression = { dollar ~ (child | any_child | indexed_child | slice | slice_to | slice_from | filter)* }
 
 and = { "&&" }
 or = { "||" }
 
-filter = { "[?(" ~ (dollar | arobase) ~ (child | any_child | indexed_child | slice | slice_to | slice_from | filter)* ~ (" ")* ~ (condition) ~ (" ")* ~ ( sub_expression | float | number | literal | array) ~ ")" ~ ( (" ")* ~ (and | or) ~ (" ")* ~ "?(" ~ (dollar | arobase) ~ (child | any_child | indexed_child | slice | slice_to | slice_from | filter)* ~ (" ")* ~ (condition) ~ (" ")* ~ ( sub_expression | float | number | literal | array) ~ ")")* ~ "]" }
+filter = {
+    "[" ~
+        "?(" ~
+            (dollar | arobase) ~
+            (child | any_child | indexed_child | slice | slice_to | slice_from | filter)* ~
+            (" ")* ~
+            (condition) ~
+            (" ")* ~
+            (sub_expression | float | number | literal | array) ~
+        ")" ~
+        (
+            (" ")* ~
+            (and | or) ~
+            (" ")* ~
+            "?(" ~
+                (dollar | arobase) ~
+                (child | any_child | indexed_child | slice | slice_to | slice_from | filter)* ~
+                (" ")* ~
+                (condition) ~
+                (" ")* ~
+                ( sub_expression | float | number | literal | array) ~
+            ")"
+        )* ~
+    "]"
+}
 
-expression = { dollar ~ (child | any_child | indexed_child | slice | slice_to | slice_from | filter)* ~ eoi }
+expression = {
+    dollar ~
+    (child | any_child | indexed_child | slice | slice_to | slice_from | filter)* ~
+    eoi
+}
