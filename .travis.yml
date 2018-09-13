@@ -24,6 +24,7 @@ matrix:
         # Exit 1, if coverage is less than 89%
         - if [ $COVERAGE -lt 89 ]; then exit 0; fi
 install:
+  - rustup component add rustfmt-preview
   - rustup component add clippy-preview
 script:
   - cargo fmt -- --check
