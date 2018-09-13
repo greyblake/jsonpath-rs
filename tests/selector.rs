@@ -33,8 +33,7 @@ macro_rules! assert_jsonpath {
             .map(|x| {
                 // println!("{:?}", x);
                 x.$convert()
-            })
-            .filter(|x| x.is_some())
+            }).filter(|x| x.is_some())
             .map(|x| x.unwrap())
             .collect();
 
