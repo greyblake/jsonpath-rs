@@ -10,7 +10,7 @@ matrix:
     - env: TARPAULIN_VERSION="0.6.2"
       rust: stable
       install:
-        - RUSTFLAGS="--cfg procmacro2_semver_exempt" cargo install cargo-tarpaulin
+        - RUSTFLAGS="--cfg procmacro2_semver_exempt" cargo install cargo-tarpaulin --version $TARPAULIN_VERSION
       script:
         - cargo tarpaulin --verbose > ./tarpaulin.out
 
@@ -23,10 +23,8 @@ matrix:
 
         # Exit 1, if coverage is less than 89%
         - if [ $COVERAGE -lt 89 ]; then exit 0; fi
-
 install:
   - rustup component add clippy-preview
-
 script:
   - cargo fmt -- --check
   - touch ./src/lib.rs && cargo clippy -- -D warnings
